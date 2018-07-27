@@ -1,13 +1,18 @@
 #pragma once
 
 #include <d3d11.h>
+#include <windows.h>
 #include <DirectXMath.h>
+#include <d3dcompiler.h>
 
+
+using namespace DirectX;
+
+// Вершина
 struct SimpleVertex
 {
 	XMFLOAT3 Pos;
 };
-
 
 
 // Инициализация устройств DirectX

@@ -124,7 +124,7 @@ void Render()
 	// Просто очищаем задний буфер
 	float ClearColor[4] = { 0.0f, 0.4f, 0.0f, 1.0f }; 
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, ClearColor);
-	
+
 	// Подключить к устройству рисования шейдеры
 	g_pImmediateContext->VSSetShader(g_pVertexShader, NULL, 0);
 	g_pImmediateContext->PSSetShader(g_pPixelShader, NULL, 0);
@@ -161,11 +161,11 @@ HRESULT InitGeometry()
 {
 	HRESULT hr = S_OK;
 
-	WCHAR c[] = L"urok2.fx";
+	WCHAR fileName[] = L"urok2.fx";
 
 	// Компиляция вершинного шейдера из файла
 	ID3DBlob* pVSBlob = NULL; // Вспомогательный объект - просто место в оперативной памяти
-	hr = CompileShaderFromFile(c, "VS", "vs_4_0", &pVSBlob);          
+	hr = CompileShaderFromFile(fileName, "VS", "vs_4_0", &pVSBlob);
 
 
 	if (FAILED(hr))
@@ -202,7 +202,7 @@ HRESULT InitGeometry()
 
 	// Компиляция пиксельного шейдера из файла
 	ID3DBlob* pPSBlob = NULL;
-	hr = CompileShaderFromFile(c, "PS", "ps_4_0", &pPSBlob);
+	hr = CompileShaderFromFile(fileName, "PS", "ps_4_0", &pPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, L"Невозможно скомпилировать файл FX. Пожалуйста, запустите данную программу из папки, содержащей файл FX.", L"Ошибка", MB_OK);

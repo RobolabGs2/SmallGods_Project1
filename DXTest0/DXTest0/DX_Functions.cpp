@@ -139,10 +139,10 @@ void Render()
 HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
 {
 	HRESULT hr = S_OK;
-	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 	ID3DBlob* pErrorBlob = NULL;
 	hr = D3DCompileFromFile(szFileName, NULL, NULL, szEntryPoint, szShaderModel,
-		dwShaderFlags, 0, NULL, ppBlobOut);
+		0, 0, ppBlobOut, NULL);
+
 
 	if (FAILED(hr))
 	{
@@ -160,10 +160,12 @@ HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szS
 HRESULT InitGeometry()
 {
 	HRESULT hr = S_OK;
-	
+
+	WCHAR c[] = L"urok2.fx";
+
 	// Компиляция вершинного шейдера из файла
 	ID3DBlob* pVSBlob = NULL; // Вспомогательный объект - просто место в оперативной памяти
-	hr = CompileShaderFromFile(L"urok2.fx", "VS", "vs_4_0", &pVSBlob);          
+	hr = CompileShaderFromFile(c, "VS", "vs_4_0", &pVSBlob);          
 
 
 	if (FAILED(hr))
@@ -200,7 +202,7 @@ HRESULT InitGeometry()
 
 	// Компиляция пиксельного шейдера из файла
 	ID3DBlob* pPSBlob = NULL;
-	hr = CompileShaderFromFile(L"urok2.fx", "PS", "ps_4_0", &pPSBlob);
+	hr = CompileShaderFromFile(c, "PS", "ps_4_0", &pPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, L"Невозможно скомпилировать файл FX. Пожалуйста, запустите данную программу из папки, содержащей файл FX.", L"Ошибка", MB_OK);

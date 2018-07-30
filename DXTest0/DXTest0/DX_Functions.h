@@ -14,7 +14,6 @@ struct SimpleVertex
 	XMFLOAT3 Pos;
 };
 
-
 // Инициализация устройств DirectX
 HRESULT InitDevice(HWND);
 // Удаление созданнных устройств DirectX

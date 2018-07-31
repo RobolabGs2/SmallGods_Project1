@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 
+#define MX_SETWORLD 0x101
 
 using namespace DirectX;
 
@@ -12,7 +13,7 @@ using namespace DirectX;
 struct SimpleVertex
 {
 	XMFLOAT3 Pos;
-	XMFLOAT4 Color;
+	XMFLOAT3 Normal;       // Нормаль вершины
 };
 
 // Константный буфер
@@ -20,7 +21,10 @@ struct ConstantBuffer
 {
 	XMMATRIX mWorld;
 	XMMATRIX mView;
-	XMMATRIX mProjection;
+	XMMATRIX mProjection; 
+	XMFLOAT4 vLightDir[2]; // Направление света
+	XMFLOAT4 vLightColor[2];      // Цвет источника
+	XMFLOAT4 vOutputColor; // Активный цвет (для второго PSSolid)
 };
 
 // Инициализация устройств DirectX
@@ -33,5 +37,7 @@ void Render();
 HRESULT InitGeometry();
 // Инициализация матриц
 HRESULT InitMatrixes(HWND);
+// Обновление параметров света
+void UpdateLight();
 // Обновление матрицы мира
-void SetMatrixes(float);        
+void UpdateMatrix(UINT nLightIndex); 

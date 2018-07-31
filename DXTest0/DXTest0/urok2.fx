@@ -4,35 +4,52 @@ cbuffer ConstantBuffer : register( b0 ) // b0 - индекс буфера
     matrix World;
     matrix View;
     matrix Projection;
+	float4 vLightDir[2];              // Направление источника света
+	float4 vLightColor[2];            // Цвет источника света
+	float4 vOutputColor;              // Активный цвет
 }
 
-struct VS_OUTPUT    // формат выходных данных вершинного шейдера
+//--------------------------------------------------------------------------------------
 
+struct VS_INPUT // Входящие данные вершинного шейдера
 {
+	float4 Pos : POSITION;        // Позиция по X, Y, Z
+	float3 Norm : NORMAL;         // Нормаль по X, Y, Z
+};
 
-    float4 Pos : SV_POSITION;
-
-    float4 Color : COLOR0;
-
+struct PS_INPUT // Входящие данные пиксельного шейдера
+{
+	float4 Pos : SV_POSITION;     // Позиция пикселя в проекции (экранная)
+	float3 Norm : TEXCOORD0;      // Относительная нормаль пикселя по tu, tv
 };
 
 
-
-VS_OUTPUT VS(float4 Pos : POSITION, float4 Color : COLOR)
+PS_INPUT VS(VS_INPUT input)
 {
-	VS_OUTPUT output = (VS_OUTPUT)0;
-	// Трансформация позиции вершины при помощи умножения на матрицу
-	output.Pos = mul(Pos, World); // сначала в пространство мира
-	output.Pos = mul(output.Pos, View); // затем в пространство вида
-	output.Pos = mul(output.Pos, Projection); // в проекционное пространство
-	output.Color = Color;
+	PS_INPUT output = (PS_INPUT)0;
+	output.Pos = mul(input.Pos, World);
+	output.Pos = mul(output.Pos, View);
+	output.Pos = mul(output.Pos, Projection);
+	output.Norm = mul(input.Norm, World);
+
 	return output;
 }
 
-float4 PS(VS_OUTPUT input) : SV_Target
-{   
-	
-	// Возвращаем желтый цвет, непрозрачный (альфа == 1, альфа-канал не включен).
-	//return float4(sin(input.Pos.x), cos(input.Pos.y), cos(input.Pos.y), 1.0f);
-	return input.Color;
+//для главного куба
+float4 PS(PS_INPUT input) : SV_Target
+{
+	float4 finalColor = 0;
+	// складываем освещенность пикселя от всех источников света
+	for (int i = 0; i<2; i++)
+	{
+		finalColor += saturate(dot((float3)vLightDir[i], input.Norm) * vLightColor[i]);
+	}
+	finalColor.a = 1;
+	return finalColor;
+}
+
+//для источников света
+float4 PSSolid(PS_INPUT input) : SV_Target
+{
+	return vOutputColor;
 }

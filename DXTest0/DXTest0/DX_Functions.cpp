@@ -271,6 +271,14 @@ HRESULT InitGeometry()
 		MessageBox(NULL, L"Невозможно скомпилировать файл FX. Пожалуйста, запустите данную программу из папки, содержащей файл FX.", L"Ошибка", MB_OK);
 		return hr;
 	}
+
+	// Создание пиксельного шейдера
+	hr = g_pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &g_pPixelShader);
+	pPSBlob->Release();
+
+	if (FAILED(hr)) return hr;
+
+
 	// Шейдер для источников света
 	pPSBlob = NULL;
 	hr = CompileShaderFromFile(fileName, "PSSolid", "ps_4_0", &pPSBlob);
@@ -282,12 +290,6 @@ HRESULT InitGeometry()
 
 	// Создание пиксельного шейдера
 	hr = g_pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &g_pPixelShaderSolid);
-	pPSBlob->Release();
-
-	if (FAILED(hr)) return hr;
-
-	// Создание пиксельного шейдера
-	hr = g_pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &g_pPixelShader);
 	pPSBlob->Release();
 	if (FAILED(hr)) return hr;
 	// куб

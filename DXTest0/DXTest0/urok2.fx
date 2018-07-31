@@ -40,9 +40,9 @@ float4 PS(PS_INPUT input) : SV_Target
 {
 	float4 finalColor = 0;
 	// складываем освещенность пикселя от всех источников света
-	for (int i = 0; i<2; i++)
+	for (int i = 0; i < 2; i++)
 	{
-		finalColor += saturate(dot((float3)vLightDir[i], input.Norm) * vLightColor[i]);
+		finalColor += saturate( dot((float3)vLightDir[i], input.Norm) * vLightColor[i]);
 	}
 	finalColor.a = 1;
 	return finalColor;

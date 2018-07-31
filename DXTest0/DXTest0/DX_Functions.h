@@ -34,4 +34,4 @@ HRESULT InitGeometry();
 // Инициализация матриц
 HRESULT InitMatrixes(HWND);
 // Обновление матрицы мира
-void SetMatrixes();        
+void SetMatrixes(float);        

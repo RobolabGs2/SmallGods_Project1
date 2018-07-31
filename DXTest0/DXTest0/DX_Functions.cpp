@@ -10,6 +10,9 @@ ID3D11DeviceContext*    g_pImmediateContext = NULL;		// Контекст устройства (рис
 IDXGISwapChain*         g_pSwapChain = NULL;			// Цепь связи (буфера с экраном)
 ID3D11RenderTargetView* g_pRenderTargetView = NULL;		// Объект заднего буфера
 
+ID3D11Texture2D*        g_pDepthStencil = NULL;             // Текстура буфера глубин
+ID3D11DepthStencilView* g_pDepthStencilView = NULL;          // Объект вида, буфер глубин
+
 ID3D11VertexShader*     g_pVertexShader = NULL;			// Вершинный шейдер
 ID3D11PixelShader*      g_pPixelShader = NULL;			// Пиксельный шейдер
 ID3D11InputLayout*      g_pVertexLayout = NULL;			// Описание формата вершин
@@ -86,14 +89,43 @@ HRESULT InitDevice(HWND hWnd)
 	hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 	if (FAILED(hr)) return hr;
 
-	// Я уже упоминал, что интерфейс g_pd3dDevice будет
-	// использоваться для создания остальных объектов
+	// По полученному описанию создаем поверхность рисования
 	hr = g_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &g_pRenderTargetView);
 	pBackBuffer->Release();
 	if (FAILED(hr)) return hr;
 
-	// Подключаем объект заднего буфера к контексту устройства
-	g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
+
+	// Создаем текстуру-описание буфера глубин
+	D3D11_TEXTURE2D_DESC descDepth;     // Структура с параметрами
+	ZeroMemory(&descDepth, sizeof(descDepth));
+	descDepth.Width = width;            // ширина и
+	descDepth.Height = height;    // высота текстуры
+	descDepth.MipLevels = 1;            // уровень интерполяции
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // формат (размер пикселя)
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	descDepth.Usage = D3D11_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;         // вид - буфер глубин
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
+
+	// При помощи заполненной структуры-описания создаем объект текстуры
+	hr = g_pd3dDevice->CreateTexture2D(&descDepth, NULL, &g_pDepthStencil);
+	if (FAILED(hr)) return hr;
+
+	// Теперь надо создать сам объект буфера глубин
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;            // Структура с параметрами
+	ZeroMemory(&descDSV, sizeof(descDSV));
+	descDSV.Format = descDepth.Format;         // формат как в текстуре
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+	// При помощи заполненной структуры-описания и текстуры создаем объект буфера глубин
+	hr = g_pd3dDevice->CreateDepthStencilView(g_pDepthStencil, &descDSV, &g_pDepthStencilView);
+	if (FAILED(hr)) return hr;
+
+	// Подключаем объект заднего буфера  и буфера глубин к контексту устройства
+	g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
 
 	// Настройка вьюпорта
 	D3D11_VIEWPORT vp;
@@ -120,6 +152,8 @@ void CleanupDevice()
 	if (g_pVertexLayout) g_pVertexLayout->Release();
 	if (g_pVertexShader) g_pVertexShader->Release();
 	if (g_pPixelShader) g_pPixelShader->Release();
+	if (g_pDepthStencil) g_pDepthStencil->Release();
+	if (g_pDepthStencilView) g_pDepthStencilView->Release();
 	if (g_pRenderTargetView) g_pRenderTargetView->Release();
 	if (g_pSwapChain) g_pSwapChain->Release();
 	if (g_pImmediateContext) g_pImmediateContext->Release();
@@ -129,15 +163,21 @@ void CleanupDevice()
 
 void Render()
 {
-	// Просто очищаем задний буфер
-	float ClearColor[4] = { 0.0f, 0.4f, 0.0f, 1.0f }; 
+	// Зачищаем буферы
+	float ClearColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f }; 
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, ClearColor);
+	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	// Для шести пирамидок
 
-	// Подключить к устройству рисования шейдеры
-	g_pImmediateContext->VSSetShader(g_pVertexShader, NULL, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-	g_pImmediateContext->PSSetShader(g_pPixelShader, NULL, 0);
-	g_pImmediateContext->DrawIndexed(18, 0, 0);
+	for (int i = 0; i < 6; i++) {
+		// Устанавливаем матрицу, параметр - положение относительно оси Y в радианах
+		SetMatrixes(i * (XM_PI * 2) / 6);
+		// Подключить к устройству рисования шейдеры
+		g_pImmediateContext->VSSetShader(g_pVertexShader, NULL, 0);
+		g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+		g_pImmediateContext->PSSetShader(g_pPixelShader, NULL, 0);
+		g_pImmediateContext->DrawIndexed(18, 0, 0);
+	}
 
 	// Выбросить задний буфер на экран
 	g_pSwapChain->Present(0, 0);
@@ -300,7 +340,7 @@ HRESULT InitMatrixes(HWND hWnd)
     g_World = XMMatrixIdentity();
  
     // Инициализация матрицы вида
-    XMVECTOR Eye = XMVectorSet( 0.0f, 1.0f, -5.0f, 0.0f );  // Откуда смотрим
+    XMVECTOR Eye = XMVectorSet( 0.0f, -5.0f, -11.0f, 0.0f );  // Откуда смотрим
     XMVECTOR At = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );    // Куда смотрим
     XMVECTOR Up = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );    // Направление верха
     g_View = XMMatrixLookAtLH( Eye, At, Up );
@@ -311,13 +351,13 @@ HRESULT InitMatrixes(HWND hWnd)
 }
 
 // Обновление матриц
-void SetMatrixes()
+void SetMatrixes(float fAngle)
 {
 	// Обновление переменной-времени
 	static float t = 0.0f;
 	if (g_driverType == D3D_DRIVER_TYPE_REFERENCE)
 	{
-		t += (float)XM_PI * 0.0125f;
+		t += (float)XM_PI * 0.0025f;
 	}
 	else
 	{
@@ -327,9 +367,21 @@ void SetMatrixes()
 			dwTimeStart = dwTimeCur;
 		t = (dwTimeCur - dwTimeStart) / 1000.0f;
 	}
+	XMMATRIX mOrbit = XMMatrixRotationY(-t + fAngle)* XMMatrixRotationX(t) * XMMatrixRotationZ(t);
 
-	// Вращать мир по оси Y на угол t (в радианах)
-	g_World = XMMatrixRotationY(t);
+	// Матрица-спин: вращение объекта вокруг своей оси
+	XMMATRIX mSpin = XMMatrixRotationX(t) * XMMatrixRotationZ(t);
+	// Матрица-позиция: перемещение на три единицы влево от начала координат
+	XMMATRIX mTranslate = XMMatrixTranslation(-3.0f, 0.0f, 0.0f);
+	// Матрица-масштаб: сжатие объекта в 2 раза
+	XMMATRIX mScale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+
+	// Результирующая матрица
+	//  --Сначала мы в центре, в масштабе 1:1:1, повернуты по всем осям на 0.0f.
+	//  --Сжимаем -> поворачиваем вокруг Y (пока мы еще в центре) -> переносим влево ->
+	//  --снова поворачиваем вокруг Y.
+	g_World = mScale * mSpin * mTranslate * mOrbit;
+
 	// Обновить константный буфер
 	// создаем временную структуру и загружаем в нее матрицы
 	ConstantBuffer cb;

@@ -10,10 +10,19 @@ ID3D11DeviceContext*    g_pImmediateContext = NULL;		// Контекст устройства (рис
 IDXGISwapChain*         g_pSwapChain = NULL;			// Цепь связи (буфера с экраном)
 ID3D11RenderTargetView* g_pRenderTargetView = NULL;		// Объект заднего буфера
 
+ID3D11Texture2D*        g_pDepthStencil = NULL;             // Текстура буфера глубин
+ID3D11DepthStencilView* g_pDepthStencilView = NULL;          // Объект вида, буфер глубин
+
 ID3D11VertexShader*     g_pVertexShader = NULL;			// Вершинный шейдер
 ID3D11PixelShader*      g_pPixelShader = NULL;			// Пиксельный шейдер
 ID3D11InputLayout*      g_pVertexLayout = NULL;			// Описание формата вершин
 ID3D11Buffer*			g_pVertexBuffer = NULL;			// Буфер вершин
+ID3D11Buffer*           g_pIndexBuffer = NULL;        // Буфер индексов вершин
+ID3D11Buffer*           g_pConstantBuffer = NULL;           // Константный буфер
+
+XMMATRIX                g_World;                      // Матрица мира
+XMMATRIX                g_View;                       // Матрица вида
+XMMATRIX                g_Projection;                 // Матрица проекции
 
 HRESULT CompileShaderFromFile(WCHAR* , LPCSTR , LPCSTR , ID3DBlob** );
 
@@ -80,14 +89,43 @@ HRESULT InitDevice(HWND hWnd)
 	hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 	if (FAILED(hr)) return hr;
 
-	// Я уже упоминал, что интерфейс g_pd3dDevice будет
-	// использоваться для создания остальных объектов
+	// По полученному описанию создаем поверхность рисования
 	hr = g_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &g_pRenderTargetView);
 	pBackBuffer->Release();
 	if (FAILED(hr)) return hr;
 
-	// Подключаем объект заднего буфера к контексту устройства
-	g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
+
+	// Создаем текстуру-описание буфера глубин
+	D3D11_TEXTURE2D_DESC descDepth;     // Структура с параметрами
+	ZeroMemory(&descDepth, sizeof(descDepth));
+	descDepth.Width = width;            // ширина и
+	descDepth.Height = height;    // высота текстуры
+	descDepth.MipLevels = 1;            // уровень интерполяции
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // формат (размер пикселя)
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	descDepth.Usage = D3D11_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;         // вид - буфер глубин
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
+
+	// При помощи заполненной структуры-описания создаем объект текстуры
+	hr = g_pd3dDevice->CreateTexture2D(&descDepth, NULL, &g_pDepthStencil);
+	if (FAILED(hr)) return hr;
+
+	// Теперь надо создать сам объект буфера глубин
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;            // Структура с параметрами
+	ZeroMemory(&descDSV, sizeof(descDSV));
+	descDSV.Format = descDepth.Format;         // формат как в текстуре
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+	// При помощи заполненной структуры-описания и текстуры создаем объект буфера глубин
+	hr = g_pd3dDevice->CreateDepthStencilView(g_pDepthStencil, &descDSV, &g_pDepthStencilView);
+	if (FAILED(hr)) return hr;
+
+	// Подключаем объект заднего буфера  и буфера глубин к контексту устройства
+	g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
 
 	// Настройка вьюпорта
 	D3D11_VIEWPORT vp;
@@ -108,10 +146,14 @@ void CleanupDevice()
 	// Сначала отключим контекст устройства
 	if (g_pImmediateContext) g_pImmediateContext->ClearState();
 	// Потом удалим объекты
+	if (g_pConstantBuffer) g_pConstantBuffer->Release();
 	if (g_pVertexBuffer) g_pVertexBuffer->Release();
+	if (g_pIndexBuffer) g_pIndexBuffer->Release();
 	if (g_pVertexLayout) g_pVertexLayout->Release();
 	if (g_pVertexShader) g_pVertexShader->Release();
 	if (g_pPixelShader) g_pPixelShader->Release();
+	if (g_pDepthStencil) g_pDepthStencil->Release();
+	if (g_pDepthStencilView) g_pDepthStencilView->Release();
 	if (g_pRenderTargetView) g_pRenderTargetView->Release();
 	if (g_pSwapChain) g_pSwapChain->Release();
 	if (g_pImmediateContext) g_pImmediateContext->Release();
@@ -121,15 +163,21 @@ void CleanupDevice()
 
 void Render()
 {
-	// Просто очищаем задний буфер
-	float ClearColor[4] = { 0.0f, 0.4f, 0.0f, 1.0f }; 
+	// Зачищаем буферы
+	float ClearColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f }; 
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, ClearColor);
+	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	// Для шести пирамидок
 
-	// Подключить к устройству рисования шейдеры
-	g_pImmediateContext->VSSetShader(g_pVertexShader, NULL, 0);
-	g_pImmediateContext->PSSetShader(g_pPixelShader, NULL, 0);
-	// Нарисовать три вершины
-	g_pImmediateContext->Draw(3, 0);
+	for (int i = 0; i < 6; i++) {
+		// Устанавливаем матрицу, параметр - положение относительно оси Y в радианах
+		SetMatrixes(i * (XM_PI * 2) / 6);
+		// Подключить к устройству рисования шейдеры
+		g_pImmediateContext->VSSetShader(g_pVertexShader, NULL, 0);
+		g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+		g_pImmediateContext->PSSetShader(g_pPixelShader, NULL, 0);
+		g_pImmediateContext->DrawIndexed(18, 0, 0);
+	}
 
 	// Выбросить задний буфер на экран
 	g_pSwapChain->Present(0, 0);
@@ -186,6 +234,7 @@ HRESULT InitGeometry()
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		/* семантическое имя, семантический индекс, размер, входящий слот (0-15), 
 		адрес начала данных в буфере вершин, класс входящего слота (не важно), InstanceDataStepRate (не важно) */
 	};
@@ -214,17 +263,20 @@ HRESULT InitGeometry()
 	pPSBlob->Release();
 	if (FAILED(hr)) return hr;
 
-	// Создание буфера вершин (три вершины треугольника)
-	SimpleVertex vertices[3];
+	SimpleVertex vertices[] =
 
-	vertices[0].Pos.x = 0.0f;  vertices[0].Pos.y = 0.5f;  vertices[0].Pos.z = 0.5f;
-	vertices[1].Pos.x = 0.5f;  vertices[1].Pos.y = -0.5f;  vertices[1].Pos.z = 0.5f;
-	vertices[2].Pos.x = -0.5f;  vertices[2].Pos.y = -0.5f;  vertices[2].Pos.z = 0.5f;
+	{  /* координаты X, Y, Z                          цвет R, G, B, A     */
+		{ XMFLOAT3(0.0f,  1.5f,  0.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) },
+		{ XMFLOAT3(-1.0f,  0.0f, -1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+		{ XMFLOAT3(1.0f,  0.0f, -1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
+		{ XMFLOAT3(-1.0f,  0.0f,  1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+		{ XMFLOAT3(1.0f,  0.0f,  1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) }
+	};
 
 	D3D11_BUFFER_DESC bd;  // Структура, описывающая создаваемый буфер
 	ZeroMemory(&bd, sizeof(bd));                    // очищаем ее
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(SimpleVertex) * 3; // размер буфера = размер одной вершины * 3
+	bd.ByteWidth = sizeof(SimpleVertex) * 5; // размер буфера = размер одной вершины * кол-во вершин
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;          // тип буфера - буфер вершин
 	bd.CPUAccessFlags = 0;
 	
@@ -235,14 +287,107 @@ HRESULT InitGeometry()
 
 											   // Вызов метода g_pd3dDevice создаст объект буфера вершин ID3D11Buffer
 	hr = g_pd3dDevice->CreateBuffer(&bd, &InitData, &g_pVertexBuffer);
+	// Создание буфера индексов:
+	// Создание массива с данными
+	WORD indices[] =
+	{  // индексы массива vertices[], по которым строятся треугольники
+		0,2,1,      /* Треугольник 1 = vertices[0], vertices[2], vertices[1] */
+		0,3,4,      /* Треугольник 2 = vertices[0], vertices[3], vertices[4] */
+		0,1,3,      /* и т. д. */
+		0,4,2,
+		1,2,3,
+		2,4,3,
+	};
+	bd.Usage = D3D11_USAGE_DEFAULT;            // Структура, описывающая создаваемый буфер
+	bd.ByteWidth = sizeof(WORD) * 18; // для 6 треугольников необходимо 18 вершин
+	bd.BindFlags = D3D11_BIND_INDEX_BUFFER; // тип - буфер индексов
+	bd.CPUAccessFlags = 0;
+	InitData.pSysMem = indices;         // указатель на наш массив индексов
+							// Вызов метода g_pd3dDevice создаст объект буфера индексов
+	hr = g_pd3dDevice->CreateBuffer(&bd, &InitData, &g_pIndexBuffer);
+	if (FAILED(hr)) return hr;
 
 	// Установка буфера вершин:
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
 	g_pImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+	// Установка буфера индексов
+	g_pImmediateContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
 	// Установка способа отрисовки вершин в буфере
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// Создание константного буфера
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(ConstantBuffer);            // размер буфера = размеру структуры
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // тип - константный буфер
+	bd.CPUAccessFlags = 0;
+	hr = g_pd3dDevice->CreateBuffer(&bd, NULL, &g_pConstantBuffer);
+	if (FAILED(hr)) return hr;
+	
+	return S_OK;
+}
 
+// Инициализация матриц
+HRESULT InitMatrixes(HWND hWnd)
+{
+    RECT rc;
+    GetClientRect(hWnd, &rc );
+    UINT width = rc.right - rc.left;           // получаем ширину
+    UINT height = rc.bottom - rc.top;   // и высоту окна
+ 
+    // Инициализация матрицы мира
+    g_World = XMMatrixIdentity();
+ 
+    // Инициализация матрицы вида
+    XMVECTOR Eye = XMVectorSet( 0.0f, -5.0f, -11.0f, 0.0f );  // Откуда смотрим
+    XMVECTOR At = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );    // Куда смотрим
+    XMVECTOR Up = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );    // Направление верха
+    g_View = XMMatrixLookAtLH( Eye, At, Up );
+ 
+    // Инициализация матрицы проекции
+    g_Projection = XMMatrixPerspectiveFovLH( XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f );
+    return S_OK;
+}
+
+// Обновление матриц
+void SetMatrixes(float fAngle)
+{
+	// Обновление переменной-времени
+	static float t = 0.0f;
+	if (g_driverType == D3D_DRIVER_TYPE_REFERENCE)
+	{
+		t += (float)XM_PI * 0.0025f;
+	}
+	else
+	{
+		static DWORD dwTimeStart = 0;
+		DWORD dwTimeCur = GetTickCount();
+		if (dwTimeStart == 0)
+			dwTimeStart = dwTimeCur;
+		t = (dwTimeCur - dwTimeStart) / 1000.0f;
+	}
+	XMMATRIX mOrbit = XMMatrixRotationY(-t + fAngle)* XMMatrixRotationX(t) * XMMatrixRotationZ(t);
+
+	// Матрица-спин: вращение объекта вокруг своей оси
+	XMMATRIX mSpin = XMMatrixRotationX(t) * XMMatrixRotationZ(t);
+	// Матрица-позиция: перемещение на три единицы влево от начала координат
+	XMMATRIX mTranslate = XMMatrixTranslation(-3.0f, 0.0f, 0.0f);
+	// Матрица-масштаб: сжатие объекта в 2 раза
+	XMMATRIX mScale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+
+	// Результирующая матрица
+	//  --Сначала мы в центре, в масштабе 1:1:1, повернуты по всем осям на 0.0f.
+	//  --Сжимаем -> поворачиваем вокруг Y (пока мы еще в центре) -> переносим влево ->
+	//  --снова поворачиваем вокруг Y.
+	g_World = mScale * mSpin * mTranslate * mOrbit;
+
+	// Обновить константный буфер
+	// создаем временную структуру и загружаем в нее матрицы
+	ConstantBuffer cb;
+	cb.mWorld = XMMatrixTranspose(g_World); // перенос содержимого одной матрицы в другую
+	cb.mView = XMMatrixTranspose(g_View);
+	cb.mProjection = XMMatrixTranspose(g_Projection);
+	// загружаем временную структуру в константный буфер g_pConstantBuffer
+	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, NULL, &cb, 0, 0);
 }

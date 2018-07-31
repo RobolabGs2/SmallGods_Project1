@@ -12,6 +12,15 @@ using namespace DirectX;
 struct SimpleVertex
 {
 	XMFLOAT3 Pos;
+	XMFLOAT4 Color;
+};
+
+// Константный буфер
+struct ConstantBuffer
+{
+	XMMATRIX mWorld;
+	XMMATRIX mView;
+	XMMATRIX mProjection;
 };
 
 // Инициализация устройств DirectX
@@ -22,3 +31,7 @@ void CleanupDevice();
 void Render(); 
 // Инициализация шаблона ввода и буфера вершин 
 HRESULT InitGeometry();
+// Инициализация матриц
+HRESULT InitMatrixes(HWND);
+// Обновление матрицы мира
+void SetMatrixes(float);        

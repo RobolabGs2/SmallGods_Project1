@@ -338,7 +338,7 @@ HRESULT InitGeometry()
 	InitData.pSysMem = vertices;               // указатель на наши 3 вершины
 
 
-											   // Вызов метода g_pd3dDevice создаст объект буфера вершин ID3D11Buffer
+	// Вызов метода g_pd3dDevice создаст объект буфера вершин ID3D11Buffer
 	hr = g_pd3dDevice->CreateBuffer(&bd, &InitData, &g_pVertexBuffer);
 	// Создание буфера индексов:
 	// Создание массива с данными
@@ -437,7 +437,7 @@ void UpdateLight()
 	vLightDirs[1] = XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f);
 	// Задаем цвет источников света, у нас он не будет меняться
 	vLightColors[0] = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	vLightColors[1] = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	vLightColors[1] = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	// При помощи трансформаций поворачиваем второй источник света
 	XMMATRIX mRotate = XMMatrixRotationY(-2.0f * t);
 	XMVECTOR vLightDir = XMLoadFloat4(&vLightDirs[1]);
@@ -457,7 +457,7 @@ void UpdateMatrix(UINT nLightIndex)
 	// Небольшая проверка индекса
 	if (nLightIndex == MX_SETWORLD) {
 		// Если рисуем центральный куб: его надо просто вращать
-		g_World = XMMatrixRotationAxis(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f), t);
+		g_World = XMMatrixRotationAxis(XMVectorSet(1.0f, 1.0f, 0.0f, 0.0f), t);
 		nLightIndex = 0;
 	}
 	else if (nLightIndex < 2) {

@@ -43,9 +43,9 @@ float4 PS(PS_INPUT input) : SV_Target
 
 	float inp = input.Pos.x*10;
 
-	float random = sin(sqrt(log10(inp) * inp) * inp);
+	float random = sin(sin(sin(sin(inp) * 10) * 3) * 4);
 
-	float a = (random + 1) / 100;
+	float a = (random + 1) / 10;
 	
 	float sn = sin(a);
 	float cn = cos(a);
@@ -60,9 +60,9 @@ float4 PS(PS_INPUT input) : SV_Target
 
 	 inp = input.Pos.y * 10;
 
-	 random = sin(sqrt(log10(inp) * inp) * inp);
+	 random = sin(sin(sin(sin(inp) * 10) * 3) * 4);
 
-	 a = (random + 1) / 100;
+	 a = (random + 1) / 10;
 
 	 sn = sin(a);
 	 cn = cos(a);
@@ -73,6 +73,7 @@ float4 PS(PS_INPUT input) : SV_Target
 		0.0f,	cn,	sn,
 		0.0f,	-sn,	cn
 	};
+
 
 
 	for (int i = 0; i < 2; i++)

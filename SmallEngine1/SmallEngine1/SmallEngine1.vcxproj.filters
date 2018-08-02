@@ -47,6 +47,9 @@
     <ClCompile Include="Direct3Dbox.cpp">
       <Filter>Исходные файлы\Direct3Dbox</Filter>
     </ClCompile>
+    <ClCompile Include="Direct3Dbox_Functions.cpp">
+      <Filter>Исходные файлы\Direct3Dbox</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="F_bot.ico">

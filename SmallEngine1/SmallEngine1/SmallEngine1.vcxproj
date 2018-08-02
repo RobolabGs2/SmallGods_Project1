@@ -157,6 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Direct3Dbox.cpp" />
+    <ClCompile Include="Direct3Dbox_Functions.cpp" />
     <ClCompile Include="SmallEngine1.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

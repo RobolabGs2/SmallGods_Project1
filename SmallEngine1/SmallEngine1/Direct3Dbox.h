@@ -25,5 +25,7 @@ private:
 	void Exp(HRESULT hr);
 public:
 	Direct3Dbox(WinAPIInit* pWinInit);
+	//	Рисует 3D объект
+	void Render(void* p3Dobj);
 	~Direct3Dbox();
 };

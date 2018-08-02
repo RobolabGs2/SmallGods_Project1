@@ -197,7 +197,6 @@ void Render()
 	g_pSwapChain->Present(0, 0);
 }
 
-
 HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
 {
 	HRESULT hr = S_OK;
@@ -217,7 +216,6 @@ HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szS
 	
 	return S_OK;
 }
-
 
 HRESULT InitGeometry()
 {
@@ -437,7 +435,7 @@ void UpdateLight()
 	vLightDirs[1] = XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f);
 	// Задаем цвет источников света, у нас он не будет меняться
 	vLightColors[0] = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	vLightColors[1] = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	vLightColors[1] = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	// При помощи трансформаций поворачиваем второй источник света
 	XMMATRIX mRotate = XMMatrixRotationY(-2.0f * t);
 	XMVECTOR vLightDir = XMLoadFloat4(&vLightDirs[1]);

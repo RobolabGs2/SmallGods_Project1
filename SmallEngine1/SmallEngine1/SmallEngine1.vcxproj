@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{DD1F914D-F8AF-4C65-BDE7-D7A597F72F63}</ProjectGuid>
+    <ProjectGuid>{9EA8A6A2-6385-4753-9CC2-09A6038FE70E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>DXTest0</RootNamespace>
+    <RootNamespace>SmallEngine1</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -149,23 +149,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DX_Functions.h" />
+    <ClInclude Include="Direct3Dbox.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="WinAPIInit.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DXTest0.cpp" />
-    <ClCompile Include="DX_Functions.cpp" />
+    <ClCompile Include="Direct3Dbox.cpp" />
+    <ClCompile Include="SmallEngine1.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resource.rc" />
+    <ClCompile Include="WinAPIInit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="F_bot.ico" />

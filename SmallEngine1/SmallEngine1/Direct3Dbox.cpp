@@ -2,7 +2,7 @@
 #include "Direct3Dbox.h"
 
 
-Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit)
+Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName)
 {
 	HRESULT hr = S_OK;
 
@@ -89,17 +89,16 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit)
 	Exp(hr);
 
 
-	// Теперь надо создать сам объект буфера глубин
-	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;            // Структура с параметрами
+	// Буфер глубины
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 	ZeroMemory(&descDSV, sizeof(descDSV));
-	descDSV.Format = descDepth.Format;         // формат как в текстуре
+	descDSV.Format = descDepth.Format;					//	формат как в текстуре
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
-	// При помощи заполненной структуры-описания и текстуры создаем объект буфера глубин
+
 	hr = pd3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &pDepthStencilView);
 	Exp(hr);
 
-	// Подключаем объект заднего буфера  и буфера глубин к контексту устройства
 	pImmediateContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
 
 	// Настройка вьюпорта
@@ -113,15 +112,68 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit)
 	// Подключаем вьюпорт к контексту устройства
 	pImmediateContext->RSSetViewports(1, &vp);
 
-}
+	// Компиляция вершинного шейдера из файла
+	ID3DBlob* pVSBlob = NULL; // Вспомогательный объект - просто место в оперативной памяти
+	hr = CompileShaderFromFile(szFileName, "VS", "vs_4_0", &pVSBlob);
 
-//	Бросает исключение если hr не S_OK
-void Direct3Dbox::Exp(HRESULT hr)
-{
-	if (FAILED(hr))
-		throw new _com_error(hr);	
-}
+	Exp(hr);
 
+	// Создание вершинного шейдера
+	hr = pd3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &pVertexShader);
+	Exp(hr);
+
+	// Определение шаблона вершин
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	/* семантическое имя, семантический индекс, размер, входящий слот (0-15),
+	адрес начала данных в буфере вершин, класс входящего слота (не важно), InstanceDataStepRate (не важно) */
+	};
+	UINT numElements = ARRAYSIZE(layout);
+
+	// Создание шаблона вершин
+	hr = pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
+		pVSBlob->GetBufferSize(), &pVertexLayout);
+	pVSBlob->Release();
+	Exp(hr);
+
+	// Подключение шаблона вершин
+	pImmediateContext->IASetInputLayout(pVertexLayout);
+
+	pPixelShader = new ID3D11PixelShader*();
+	for (int i = 0; i < PixelShaderTypeLength; i++)
+	{
+		// Компиляция пиксельного шейдера из файла
+		ID3DBlob* pPSBlob = NULL;
+		hr = CompileShaderFromFile(szFileName, ShaderTypeToLPCSTR((PixelShaderType)i), "ps_4_0", &pPSBlob);
+
+		Exp(hr);
+
+		// Создание пиксельного шейдера
+		hr = pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &(pPixelShader[i]));
+		pPSBlob->Release();
+		Exp(hr);
+	}
+
+	D3D11_BUFFER_DESC bd;  // Структура, описывающая создаваемый буфер
+	ZeroMemory(&bd, sizeof(bd));
+	// Создание константного буфера
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(ConstantBuffer);			//	размер буфера = размеру структуры
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;		//	тип - константный буфер
+	bd.CPUAccessFlags = 0;
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &pConstantBuffer);
+	Exp(hr);
+
+	// Инициализация матрицы вида
+	XMVECTOR Eye = XMVectorSet(0.0f, 4.0f, -11.0f, 0.0f);  // Откуда смотрим
+	XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);    // Куда смотрим
+	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);    // Направление верха
+	View = XMMatrixLookAtLH(Eye, At, Up);
+
+	Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
+}
 
 Direct3Dbox::~Direct3Dbox()
 {

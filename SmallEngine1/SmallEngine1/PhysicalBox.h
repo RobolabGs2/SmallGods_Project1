@@ -14,8 +14,12 @@ private:
 public:
 	//	Конструктор
 	PhysicalBox(Direct3Dbox* pDXbox);
+	//	Удаляет воксель. Совсем. Как будто его и не было.
+	void RemoveVoxel(Voxel* pVoxel);
 	//	Один такт просчёта физики
 	void Tick(DWORD dt);
+	//	Создаёт объект и добавляет на сцену
+	void AddObject();
 	//	Деструктор
 	~PhysicalBox();
 };

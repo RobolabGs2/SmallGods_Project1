@@ -1,12 +1,27 @@
 #pragma once
 
+class Direct3Dbox;
+struct Vertex;
+
 #include <d3d11.h>
 #include <windows.h>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 #include "WinAPIInit.h"
-#include <exception>
+#include "Voxel.h"
+#include <comdef.h>
 
+
+using namespace DirectX;
+
+//	Вершина
+struct Vertex
+{
+	XMFLOAT3 Pos;		//	Позиция вершины
+	XMFLOAT3 Normal;	//	Нормаль
+};
+
+//	Класс - обёртка над Direct3D
 class Direct3Dbox
 {
 private:
@@ -19,13 +34,17 @@ private:
 	ID3D11RenderTargetView* pRenderTargetView;		//	Поверхность рисования заднего буфера
 	ID3D11Texture2D*        pDepthStencil;			//	Текстура буфера глубин
 	WinAPIInit*				pWinInit;				//	Объект она для вывода
-	ID3D11DepthStencilView* pDepthStencilView;	// Объект вида, буфер глубин
+	ID3D11DepthStencilView* pDepthStencilView;		//	Объект вида, буфер глубин
 	
 	//	Бросает исключение если hr не S_OK
 	void Exp(HRESULT hr);
 public:
+	//	Конструктор
 	Direct3Dbox(WinAPIInit* pWinInit);
-	//	Рисует 3D объект
-	void Render(void* p3Dobj);
+	//	Рисует объект на задний буфер
+	void Draw(Voxel* pVoxel);
+	//	Отрисовывает и очищает задний буфер и буфер глубины
+	void Show();
+	//	Деструктор	
 	~Direct3Dbox();
 };

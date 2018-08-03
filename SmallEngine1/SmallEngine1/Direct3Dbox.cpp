@@ -58,9 +58,8 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit)
 		if (SUCCEEDED(hr))	// Если устройства созданы успешно, то выходим из цикла
 			break;
 	}
-
 	Exp(hr);
-
+	
 	//	Задний буфер, нужен не долго и только для получения TargetView
 	ID3D11Texture2D* pBackBuffer = NULL;
 	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
@@ -120,8 +119,9 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit)
 void Direct3Dbox::Exp(HRESULT hr)
 {
 	if (FAILED(hr))
-		throw std::exception((char*)hr);
+		throw new _com_error(hr);	
 }
+
 
 Direct3Dbox::~Direct3Dbox()
 {

@@ -150,7 +150,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Direct3Dbox.h" />
+    <ClInclude Include="Voxel.h" />
+    <ClInclude Include="PhysicalBox.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WinAPIInit.h" />
@@ -158,6 +161,8 @@
   <ItemGroup>
     <ClCompile Include="Direct3Dbox.cpp" />
     <ClCompile Include="Direct3Dbox_Functions.cpp" />
+    <ClCompile Include="Voxel.cpp" />
+    <ClCompile Include="PhysicalBox.cpp" />
     <ClCompile Include="SmallEngine1.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -169,6 +174,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="F_bot.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -24,6 +24,7 @@ struct PS_INPUT // Входящие данные пиксельного шейдера
 
 PS_INPUT VS(VS_INPUT input)
 {
+	
 	PS_INPUT output = (PS_INPUT)0;
 	output.Pos = mul(input.Pos, World);
 	output.Pos = mul(output.Pos, View);
@@ -36,14 +37,14 @@ PS_INPUT VS(VS_INPUT input)
 
 float4 PS_BASE(PS_INPUT input) : SV_Target
 {
-	float4 finalColor = 0;
+	float4 finalColor = vOutputColor;
 	// складываем освещенность пикселя от всех источников света
 	/*
 	for (int i = 0; i < 2; i++)
 	{
 		finalColor += saturate( dot((float3)vLightDir[i], input.Norm) * vLightColor[i]);
 	}*/
-	finalColor.a = 1;
+	//finalColor.a = 1;
 	return finalColor;
 }
 

@@ -13,7 +13,10 @@ void Direct3Dbox::Show()
 
 void Direct3Dbox::Draw(Voxel* pVoxel)
 {
-	XMMATRIX World = XMMatrixTranslation(pVoxel->location->x, pVoxel->location->y, pVoxel->location->z);
+	HRESULT hr = S_OK;
+
+	XMMATRIX World = XMMatrixTranslation(pVoxel->location.x, pVoxel->location.y, pVoxel->location.z);
+
 	ConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(World);
 	cb.mView = XMMatrixTranspose(View);
@@ -23,32 +26,36 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 	pImmediateContext->UpdateSubresource(pConstantBuffer, 0, NULL, &cb, 0, 0);
 
 
-	D3D11_BUFFER_DESC bd;						// Структура, описывающая создаваемый буфер
-	ZeroMemory(&bd, sizeof(bd));				// очищаем ее
+	D3D11_BUFFER_DESC bd;										// Структура, описывающая создаваемый буфер
+	ZeroMemory(&bd, sizeof(bd));								// очищаем ее
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(Vertex) * 24;			// размер буфера = размер одной вершины * кол-во вершин
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;	// тип буфера - буфер вершин
+	bd.ByteWidth = sizeof(Vertex) *  pVoxel->vertices.size();	// размер буфера = размер одной вершины * кол-во вершин
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;					// тип буфера - буфер вершин
 	bd.CPUAccessFlags = 0;
 
+	Vertex* vertices = &(pVoxel->vertices)[0];
 
 	D3D11_SUBRESOURCE_DATA InitData;			// Структура, содержащая данные буфера
 	ZeroMemory(&InitData, sizeof(InitData));	// очищаем ее
-	InitData.pSysMem = pVoxel->vertices;		// указатель на наши 3 вершины
+	InitData.pSysMem = vertices;		// указатель на вершины
 
 	// Вызов метода pd3dDevice создаст объект буфера вершин ID3D11Buffer
 	ID3D11Buffer* pVertexBuffer = NULL;
-	pd3dDevice->CreateBuffer(&bd, &InitData, &pVertexBuffer);
-   
+	hr = pd3dDevice->CreateBuffer(&bd, &InitData, &pVertexBuffer);
+	Exp(hr);
 
+
+	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;				// Структура, описывающая создаваемый буфер
-	bd.ByteWidth = sizeof(WORD) * 36;			// 6 граней = 12 треугольников = 36 вершин
+	bd.ByteWidth = sizeof(WORD) * pVoxel->indices.size();			// 6 граней = 12 треугольников = 36 вершин
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;		// тип - буфер индексов
 	bd.CPUAccessFlags = 0;
-	InitData.pSysMem = pVoxel->indices;			// указатель на наш массив индексов
-
+	InitData.pSysMem = &(pVoxel->indices)[0];			// указатель на наш массив индексов
+	
 	// Вызов метода pd3dDevice создаст объект буфера индексов
 	ID3D11Buffer* pIndexBuffer = NULL;
-	HRESULT hr = pd3dDevice->CreateBuffer(&bd, &InitData, &pIndexBuffer);
+	hr = pd3dDevice->CreateBuffer(&bd, &InitData, &pIndexBuffer);
+	Exp(hr);
 
 	// Установка буфера вершин:
 	UINT stride = sizeof(Vertex);
@@ -65,6 +72,10 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 	pImmediateContext->PSSetConstantBuffers(0, 1, &pConstantBuffer);
 
 	pImmediateContext->DrawIndexed(36, 0, 0);
+
+	pVertexBuffer->Release();
+	pIndexBuffer->Release();
+
 }
 
 

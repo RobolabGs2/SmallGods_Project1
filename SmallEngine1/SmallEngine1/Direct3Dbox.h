@@ -4,7 +4,6 @@ class Direct3Dbox;
 struct Vertex;
 enum PixelShaderType;
 struct ConstantBuffer;
-class  Float3;
 
 #include <d3d11.h>
 #include <windows.h>
@@ -13,6 +12,7 @@ class  Float3;
 #include "WinAPIInit.h"
 #include "Voxel.h"
 #include <comdef.h>
+#include <vector>
 
 
 using namespace DirectX;
@@ -26,16 +26,6 @@ struct Vertex
 {
 	XMFLOAT3 Pos;		//	Позиция вершины
 	XMFLOAT3 Normal;	//	Нормаль
-};
-
-class  Float3
-{
-public:
-	Float3(float x_inp, float y_inp, float z_inp) :
-		x(x_inp), y(y_inp), z(z_inp) {};
-	float x;
-	float y;
-	float z;
 };
 
 // Константный буфер

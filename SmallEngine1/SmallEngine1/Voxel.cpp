@@ -14,7 +14,9 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 	this->pPrev = pPrev;
 	this->pDXbox = pDXbox;
 	this->pPhBox = pPhBox;
-	Vertex vertices[] =
+	
+	//	Пока делаем кубик, потом надо сделат какой-нибудь генератор
+	vertices =
 	{  /* координаты X, Y, Z                          нормаль X, Y, Z     */
 		{ XMFLOAT3(-1.0f, 1.0f, -1.0f),		XMFLOAT3(0.0f, 1.0f, 0.0f) },
 		{ XMFLOAT3(1.0f, 1.0f, -1.0f),		XMFLOAT3(0.0f, 1.0f, 0.0f) },
@@ -46,10 +48,8 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 		{ XMFLOAT3(1.0f, 1.0f, 1.0f),		XMFLOAT3(0.0f, 0.0f, 1.0f) },
 		{ XMFLOAT3(-1.0f, 1.0f, 1.0f),		XMFLOAT3(0.0f, 0.0f, 1.0f) },
 	};
-
-	this->vertices = vertices;
-
-	WORD indices[] =
+	
+	indices =
 	{
 		3,1,0,
 		2,1,3,
@@ -69,9 +69,8 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 		22,20,21,
 		23,20,22
 	};
-	this->indices = indices;
 
-	location = new Float3(1.0f, 1.0f, 1.0f);
+	location = XMFLOAT3(0, 0, 0);
 }
 
 Voxel* Voxel::AddPrev(Voxel* pVoxel)

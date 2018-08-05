@@ -4,18 +4,21 @@ class  Voxel;
 
 #include "Direct3Dbox.h"
 #include "PhysicalBox.h"
+#include <DirectXMath.h>
+#include <vector>
 
+using namespace DirectX;
 
 class  Voxel
 {
 private:
-	Direct3Dbox*	pDXbox;		//	основной Direct3Dbox
-	PhysicalBox*	pPhBox;		//	родительский PhysicalBox
-	Voxel *			pNext;		//	Ссылка на следующий
-	Voxel*			pPrev;		//	Ссылка на предыдущий
-	Float3*			location;	//	Координаты расположения объекта
-	Vertex*			vertices;
-	WORD*			indices;
+	Direct3Dbox*		pDXbox;		//	основной Direct3Dbox
+	PhysicalBox*		pPhBox;		//	родительский PhysicalBox
+	Voxel *				pNext;		//	Ссылка на следующий
+	Voxel*				pPrev;		//	Ссылка на предыдущий
+	XMFLOAT3			location;	//	Координаты расположения объекта
+	std::vector<Vertex>	vertices;	//	Массив вершин
+	std::vector<WORD>	indices;	//	Массив индексов
 public:	
 
 	//	Конструктор по умолчанию, создаёт пустой объект со ссылкой на самого себя

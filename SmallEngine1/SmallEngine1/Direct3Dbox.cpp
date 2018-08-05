@@ -126,7 +126,7 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName)
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	/* семантическое имя, семантический индекс, размер, входящий слот (0-15),
 	адрес начала данных в буфере вершин, класс входящего слота (не важно), InstanceDataStepRate (не важно) */
 	};
@@ -141,7 +141,7 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName)
 	// Подключение шаблона вершин
 	pImmediateContext->IASetInputLayout(pVertexLayout);
 
-	pPixelShader = new ID3D11PixelShader*();
+	pPixelShader = new ID3D11PixelShader*[PixelShaderTypeLength];
 	for (int i = 0; i < PixelShaderTypeLength; i++)
 	{
 		// Компиляция пиксельного шейдера из файла
@@ -168,11 +168,16 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName)
 
 	// Инициализация матрицы вида
 	XMVECTOR Eye = XMVectorSet(0.0f, 4.0f, -11.0f, 0.0f);  // Откуда смотрим
-	XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);    // Куда смотрим
+	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);    // Куда смотрим
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);    // Направление верха
 	View = XMMatrixLookAtLH(Eye, At, Up);
 
 	Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
+
+
+	// Установка способа отрисовки вершин в буфере
+	pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 }
 
 Direct3Dbox::~Direct3Dbox()

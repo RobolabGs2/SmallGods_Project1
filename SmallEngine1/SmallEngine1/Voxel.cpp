@@ -71,6 +71,8 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 	};
 
 	location = XMFLOAT3(0, 0, 0);
+
+	Rotation = XMMatrixRotationX(0);
 }
 
 Voxel* Voxel::AddPrev(Voxel* pVoxel)
@@ -92,6 +94,7 @@ void Voxel::Tick(DWORD dt)
 		ÌÀÃÈß (ôèçèêà)
 		ÌÀÃÈß (ôèçèêà)
 	*/
+	Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / 1000.0f));
 
 	pDXbox->Draw(this);
 }

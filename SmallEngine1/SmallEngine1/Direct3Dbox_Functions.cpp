@@ -15,7 +15,8 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 {
 	HRESULT hr = S_OK;
 
-	XMMATRIX World = XMMatrixTranslation(pVoxel->location.x, pVoxel->location.y, pVoxel->location.z);
+	XMMATRIX World =XMMatrixMultiply(pVoxel->Rotation, XMMatrixTranslation(pVoxel->location.x, pVoxel->location.y, pVoxel->location.z));
+	
 
 	ConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(World);

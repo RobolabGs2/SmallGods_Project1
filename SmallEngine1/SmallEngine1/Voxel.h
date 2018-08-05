@@ -16,6 +16,7 @@ private:
 	PhysicalBox*		pPhBox;		//	родительский PhysicalBox
 	Voxel *				pNext;		//	Ссылка на следующий
 	Voxel*				pPrev;		//	Ссылка на предыдущий
+	XMMATRIX			Rotation;	//	Матрица поворота
 	XMFLOAT3			location;	//	Координаты расположения объекта
 	std::vector<Vertex>	vertices;	//	Массив вершин
 	std::vector<WORD>	indices;	//	Массив индексов

@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Direct3Dbox.h" />
     <ClInclude Include="Voxel.h" />
     <ClInclude Include="PhysicalBox.h" />

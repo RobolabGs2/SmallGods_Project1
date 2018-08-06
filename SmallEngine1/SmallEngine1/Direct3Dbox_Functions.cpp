@@ -16,7 +16,8 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 	HRESULT hr = S_OK;
 
 	XMMATRIX World =XMMatrixMultiply(pVoxel->Rotation, XMMatrixTranslation(pVoxel->location.x, pVoxel->location.y, pVoxel->location.z));
-	
+
+	cb.mView = XMMatrixTranspose(camera->GetView());
 	cb.mWorld = XMMatrixTranspose(World);
 	cb.vOutputColor = {0.0f, 0.5f, 0.0f, 1.0f };
 

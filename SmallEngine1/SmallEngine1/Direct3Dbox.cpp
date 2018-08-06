@@ -2,7 +2,7 @@
 #include "Direct3Dbox.h"
 
 
-Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName)
+Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera)
 {
 	HRESULT hr = S_OK;
 
@@ -166,13 +166,7 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName)
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &pConstantBuffer);
 	Exp(hr);
 
-
-	// Инициализация матрицы вида
-	XMVECTOR Eye = XMVectorSet(0.0f, 4.0f, -11.0f, 0.0f);  // Откуда смотрим
-	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);    // Куда смотрим
-	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);    // Направление верха
-	XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
-	cb.mView = XMMatrixTranspose(View);
+	this->camera = camera;
 	cb.sunPosition = XMFLOAT3(0.5, 1, -0.5);
 
 	XMMATRIX Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);

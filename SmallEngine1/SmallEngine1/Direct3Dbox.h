@@ -1,4 +1,5 @@
 #pragma once
+#include "Camera.h"
 
 class Direct3Dbox;
 struct Vertex;
@@ -57,6 +58,7 @@ private:
 	ID3D11InputLayout*      pVertexLayout;			//	Описание формата вершин
 	ID3D11Buffer*           pConstantBuffer;		//	Константный буфер
 	ConstantBuffer			cb;
+	Camera*					camera;
 	//	Бросает исключение если hr не S_OK
 	void Exp(HRESULT hr);
 	//	Преобразует тип шейдера в строковое представление
@@ -65,7 +67,7 @@ private:
 	HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 public:
 	//	Конструктор
-	Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName);
+	Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera*);
 	//	Рисует объект на задний буфер
 	void Draw(Voxel* pVoxel);
 	//	Отрисовывает и очищает задний буфер и буфер глубины

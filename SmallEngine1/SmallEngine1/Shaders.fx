@@ -5,6 +5,7 @@ cbuffer ConstantBuffer : register( b0 ) // b0 - индекс буфера
     matrix View;
 	matrix Projection;
 	float4 vOutputColor;              // Активный цвет
+	float3 SunPosition;
 }
 
 //--------------------------------------------------------------------------------------
@@ -37,15 +38,9 @@ PS_INPUT VS(VS_INPUT input)
 
 float4 PS_BASE(PS_INPUT input) : SV_Target
 {
-	float4 finalColor = vOutputColor;
-	// складываем освещенность пикселя от всех источников света
-	/*
-	for (int i = 0; i < 2; i++)
-	{
-		finalColor += saturate( dot((float3)vLightDir[i], input.Norm) * vLightColor[i]);
-	}*/
-	//finalColor.a = 1;
-	return finalColor;
+	float4 Illumination = saturate(dot(SunPosition, input.Norm));
+
+	return vOutputColor * Illumination;
 }
 
 float4 PS_LIGHT(PS_INPUT input) : SV_Target

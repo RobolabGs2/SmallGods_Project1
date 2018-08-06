@@ -166,14 +166,17 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName)
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &pConstantBuffer);
 	Exp(hr);
 
+
 	// Инициализация матрицы вида
 	XMVECTOR Eye = XMVectorSet(0.0f, 4.0f, -11.0f, 0.0f);  // Откуда смотрим
 	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);    // Куда смотрим
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);    // Направление верха
-	View = XMMatrixLookAtLH(Eye, At, Up);
+	XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
+	cb.mView = XMMatrixTranspose(View);
+	cb.sunPosition = XMFLOAT3(0.5, 1, -0.5);
 
-	Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
-
+	XMMATRIX Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
+	cb.mProjection = XMMatrixTranspose(Projection);
 
 	// Установка способа отрисовки вершин в буфере
 	pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

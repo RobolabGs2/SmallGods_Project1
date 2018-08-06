@@ -17,12 +17,8 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 
 	XMMATRIX World =XMMatrixMultiply(pVoxel->Rotation, XMMatrixTranslation(pVoxel->location.x, pVoxel->location.y, pVoxel->location.z));
 	
-
-	ConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(World);
-	cb.mView = XMMatrixTranspose(View);
-	cb.mProjection = XMMatrixTranspose(Projection);
-	cb.vOutputColor = {1.0f, 1.0f, 1.0f, 1.0f };
+	cb.vOutputColor = {0.0f, 0.5f, 0.0f, 1.0f };
 
 	pImmediateContext->UpdateSubresource(pConstantBuffer, 0, NULL, &cb, 0, 0);
 

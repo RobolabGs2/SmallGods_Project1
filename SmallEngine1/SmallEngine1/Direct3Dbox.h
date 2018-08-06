@@ -35,6 +35,7 @@ struct ConstantBuffer
 	XMMATRIX mView;
 	XMMATRIX mProjection;
 	XMFLOAT4 vOutputColor;
+	XMFLOAT3 sunPosition;
 };
 
 //	Класс - обёртка над Direct3D
@@ -55,8 +56,7 @@ private:
 	ID3D11PixelShader**     pPixelShader;			//	Массив пиксельных шейдеров
 	ID3D11InputLayout*      pVertexLayout;			//	Описание формата вершин
 	ID3D11Buffer*           pConstantBuffer;		//	Константный буфер
-	XMMATRIX                Projection;				//	Матрица проекции
-	XMMATRIX                View;					//	Матрица вида
+	ConstantBuffer			cb;
 	//	Бросает исключение если hr не S_OK
 	void Exp(HRESULT hr);
 	//	Преобразует тип шейдера в строковое представление

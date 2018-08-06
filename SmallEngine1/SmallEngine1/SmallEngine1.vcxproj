@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Direct3Dbox.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Voxel.h" />
     <ClInclude Include="PhysicalBox.h" />
     <ClInclude Include="resource.h" />
@@ -162,6 +163,7 @@
   <ItemGroup>
     <ClCompile Include="Direct3Dbox.cpp" />
     <ClCompile Include="Direct3Dbox_Functions.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Voxel.cpp" />
     <ClCompile Include="PhysicalBox.cpp" />
     <ClCompile Include="SmallEngine1.cpp" />

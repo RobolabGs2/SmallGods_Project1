@@ -18,8 +18,8 @@ public:
 	void RemoveVoxel(Voxel* pVoxel);
 	//	Один такт просчёта физики
 	void Tick(DWORD dt);
-	//	Создаёт объект и добавляет на сцену
-	void AddObject();
+	//  Добавляет объект на сцену
+	void AddObject(Voxel*);
 	//	Деструктор
 	~PhysicalBox();
 };

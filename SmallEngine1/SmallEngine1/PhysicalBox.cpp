@@ -21,9 +21,10 @@ void PhysicalBox::Tick(DWORD dt)
 	pDXbox->Show();
 }
 
-void PhysicalBox::AddObject()
+void PhysicalBox::AddObject(Voxel* voxel)
 {
-	pMainVox->AddPrev(new Voxel(NULL, NULL, pDXbox, this));
+	pMainVox->AddPrev(voxel);
+
 }
 
 void PhysicalBox::RemoveVoxel(Voxel* pVoxel)

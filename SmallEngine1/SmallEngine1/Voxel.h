@@ -29,7 +29,7 @@ public:
 	//	Добавляет воксель перед данным. Возвращает ссылку на него
 	Voxel* AddPrev(Voxel* pVoxel);
 	//	Один такт просчёта физики
-	 void Tick(DWORD dt);
+	virtual  void Tick(DWORD dt);
 	//	Деструктор
 	~ Voxel();
 

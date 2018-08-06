@@ -24,4 +24,13 @@ public:
 	{
 		return XMMatrixLookAtLH(Eye, At, Up);
 	}
+
+	void SetAt(XMVECTOR v)
+	{
+		At = v;
+	}
+	void SetEye(XMVECTOR v)
+	{
+		Eye = v;
+	}
 };

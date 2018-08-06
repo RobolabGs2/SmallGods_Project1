@@ -81,7 +81,6 @@ Voxel* Voxel::AddPrev(Voxel* pVoxel)
 	pVoxel->pNext = this;
 	pVoxel->pPrev->pNext = pVoxel;
 	pVoxel->pNext->pPrev = pVoxel;
-
 	return pVoxel;
 }
 
@@ -95,7 +94,6 @@ void Voxel::Tick(DWORD dt)
 		ÌÀÃÈß (ôèçèêà)
 	*/
 	Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / 1000.0f));
-
 	pDXbox->Draw(this);
 }
 

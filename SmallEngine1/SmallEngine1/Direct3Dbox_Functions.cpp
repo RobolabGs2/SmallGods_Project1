@@ -19,7 +19,7 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 
 	cb.mView = XMMatrixTranspose(camera->GetView());
 	cb.mWorld = XMMatrixTranspose(World);
-	cb.vOutputColor = {0.0f, 0.5f, 0.0f, 1.0f };
+	cb.vOutputColor = {0.2f, 0.2f, 0.7f, 1.0f };
 
 	pImmediateContext->UpdateSubresource(pConstantBuffer, 0, NULL, &cb, 0, 0);
 

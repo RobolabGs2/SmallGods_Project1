@@ -1,14 +1,20 @@
 #pragma once
+
+
+#include "Direct3Dbox.h"
+#include "PhysicalBox.h"
+#include <DirectXMath.h>
+#include <vector>
 #include "Voxel.h"
-#include "Camera.h"
+
+using namespace DirectX;
+
 class Player :
 	public Voxel
 {
 public:
-	Player(Camera* camera);
+	Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox);
 	~Player();
-	void Tick(DWORD);
-private:
-	Camera * camera;
+	//void Tick(DWORD);
 };
 

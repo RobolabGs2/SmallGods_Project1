@@ -14,10 +14,10 @@ class  Voxel
 protected:
 	Direct3Dbox*		pDXbox;		//	основной Direct3Dbox
 	PhysicalBox*		pPhBox;		//	родительский PhysicalBox
-	Voxel *				pNext;		//	Ссылка на следующий
+	Voxel*				pNext;		//	Ссылка на следующий
 	Voxel*				pPrev;		//	Ссылка на предыдущий
 	XMMATRIX			Rotation;	//	Матрица поворота
-	XMFLOAT3			location;	//	Координаты расположения объекта
+	XMFLOAT4			location;	//	Координаты расположения объекта
 	std::vector<Vertex>	vertices;	//	Массив вершин
 	std::vector<WORD>	indices;	//	Массив индексов
 public:	
@@ -34,7 +34,10 @@ public:
 	~ Voxel();
 	// Абсолютные координаты
 	XMMATRIX GetMatrixWorld();
-
+	//	Возвращает матрицу поворота
+	XMMATRIX GetRotation();
+	//	Возвращает координату 
+	XMFLOAT4 GetLocation();
 	//	Друзья))
 	friend class Direct3Dbox;
 	friend class PhysicalBox;

@@ -70,7 +70,7 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 		23,20,22
 	};
 
-	location = XMFLOAT3(0, 0, 0);
+	location = XMFLOAT4(0, 0, 0, 0);
 
 	Rotation = XMMatrixRotationX(0);
 }
@@ -104,4 +104,15 @@ Voxel::~Voxel()
 XMMATRIX Voxel::GetMatrixWorld()
 {
 	return XMMatrixMultiply(Rotation, XMMatrixTranslation(location.x, location.y, location.z));
+}
+
+XMMATRIX Voxel::GetRotation()
+{
+	return Rotation;;
+}
+
+
+XMFLOAT4 Voxel::GetLocation()
+{
+	return location;
 }

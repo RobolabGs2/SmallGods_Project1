@@ -1,5 +1,6 @@
 #pragma once
 
+class Player;
 
 #include "Direct3Dbox.h"
 #include "PhysicalBox.h"
@@ -15,6 +16,6 @@ class Player :
 public:
 	Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox);
 	~Player();
-	//void Tick(DWORD);
+	void Tick(DWORD);
 };
 

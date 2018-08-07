@@ -1,5 +1,4 @@
 #pragma once
-#include "Camera.h"
 
 class Direct3Dbox;
 struct Vertex;
@@ -12,6 +11,7 @@ struct ConstantBuffer;
 #include <d3dcompiler.h>
 #include "WinAPIInit.h"
 #include "Voxel.h"
+#include "Camera.h"
 #include <comdef.h>
 #include <vector>
 

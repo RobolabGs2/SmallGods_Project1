@@ -161,6 +161,7 @@
     <ClInclude Include="WinAPIInit.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Direct3Dbox.cpp" />
     <ClCompile Include="Direct3Dbox_Functions.cpp" />
     <ClCompile Include="Player.cpp" />

@@ -11,7 +11,7 @@ using namespace DirectX;
 
 class  Voxel
 {
-private:
+protected:
 	Direct3Dbox*		pDXbox;		//	основной Direct3Dbox
 	PhysicalBox*		pPhBox;		//	родительский PhysicalBox
 	Voxel *				pNext;		//	Ссылка на следующий
@@ -32,6 +32,8 @@ public:
 	virtual  void Tick(DWORD dt);
 	//	Деструктор
 	~ Voxel();
+	// Абсолютные координаты
+	XMMATRIX GetMatrixWorld();
 
 	//	Друзья))
 	friend class Direct3Dbox;

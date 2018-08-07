@@ -100,3 +100,8 @@ void Voxel::Tick(DWORD dt)
 Voxel::~Voxel()
 {
 }
+
+XMMATRIX Voxel::GetMatrixWorld()
+{
+	return XMMatrixMultiply(Rotation, XMMatrixTranslation(location.x, location.y, location.z));
+}

@@ -3,6 +3,7 @@
 class PhysicalBox;
 
 #include "Direct3Dbox.h"
+#include "Direct3Dbox.h"
 #include "Voxel.h"
 
 
@@ -18,6 +19,9 @@ public:
 	void RemoveVoxel(Voxel* pVoxel);
 	//	Один такт просчёта физики
 	void Tick(DWORD dt);
+	//	Метод, который должен был называться GenerateWorld, но Слава сказал, что
+	//	вдруг у нас будет объект World, тогда получится путаница, так что вот.
+	void GenerateVoxels(Direct3Dbox* pDXBox);
 	//  Добавляет объект на сцену
 	void AddObject(Voxel*);
 	//	Деструктор

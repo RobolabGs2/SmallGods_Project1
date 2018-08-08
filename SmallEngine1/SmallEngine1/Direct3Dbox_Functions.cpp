@@ -27,11 +27,11 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 	D3D11_BUFFER_DESC bd;										// Структура, описывающая создаваемый буфер
 	ZeroMemory(&bd, sizeof(bd));								// очищаем ее
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(Vertex) *  pVoxel->vertices.size();	// размер буфера = размер одной вершины * кол-во вершин
+	bd.ByteWidth = sizeof(Vertex) *  pVoxel->img_vertices.size();	// размер буфера = размер одной вершины * кол-во вершин
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;					// тип буфера - буфер вершин
 	bd.CPUAccessFlags = 0;
 
-	Vertex* vertices = &(pVoxel->vertices)[0];
+	Vertex* vertices = &(pVoxel->img_vertices)[0];
 
 	D3D11_SUBRESOURCE_DATA InitData;			// Структура, содержащая данные буфера
 	ZeroMemory(&InitData, sizeof(InitData));	// очищаем ее
@@ -45,10 +45,10 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;				// Структура, описывающая создаваемый буфер
-	bd.ByteWidth = sizeof(WORD) * pVoxel->indices.size();			// 6 граней = 12 треугольников = 36 вершин
+	bd.ByteWidth = sizeof(WORD) * pVoxel->img_indices.size();			// 6 граней = 12 треугольников = 36 вершин
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;		// тип - буфер индексов
 	bd.CPUAccessFlags = 0;
-	InitData.pSysMem = &(pVoxel->indices)[0];			// указатель на наш массив индексов
+	InitData.pSysMem = &(pVoxel->img_indices)[0];			// указатель на наш массив индексов
 	
 	// Вызов метода pd3dDevice создаст объект буфера индексов
 	ID3D11Buffer* pIndexBuffer = NULL;
@@ -69,7 +69,7 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 	pImmediateContext->PSSetShader(pPixelShader[0 /* Тут по идеи должен меняться номер*/], NULL, 0);
 	pImmediateContext->PSSetConstantBuffers(0, 1, &pConstantBuffer);
 
-	pImmediateContext->DrawIndexed(36, 0, 0);
+	pImmediateContext->DrawIndexed(pVoxel->img_indices.size(), 0, 0);
 
 	pVertexBuffer->Release();
 	pIndexBuffer->Release();

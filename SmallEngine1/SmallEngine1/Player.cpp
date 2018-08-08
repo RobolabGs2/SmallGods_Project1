@@ -5,8 +5,9 @@
 Player::Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox):Voxel(pNext, pPrev, pDXbox, pPhBox)
 {
 
-	location = XMFLOAT4(0, 0, -11, 0);
-	Rotation = XMMatrixRotationX(0);
+	location = XMFLOAT3(0, 5, -11);
+	Rotation = XMMatrixRotationY(-3.14159265358979/2 );
+	Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationX(0.2));
 };
 
 

@@ -15,9 +15,9 @@ Camera::Camera()
 
 XMMATRIX Camera::GetView()
 {
-	XMFLOAT4 location = Owner->GetLocation();
-	XMVECTOR Eye = XMLoadFloat4(&location);// Откуда смотрим
-	XMVECTOR At = XMVectorAdd(XMVector3Transform(OriginalRotation, Owner->GetRotation()),XMLoadFloat4(&location));// Куда смотрим
+	XMFLOAT3 location = Owner->GetLocation();
+	XMVECTOR Eye = XMLoadFloat3(&location);// Откуда смотрим
+	XMVECTOR At = XMVectorAdd(XMVector3Transform(OriginalRotation, Owner->GetRotation()),XMLoadFloat3(&location));// Куда смотрим
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);// Направление верха
 	
 	return XMMatrixLookAtLH(Eye, At, Up);

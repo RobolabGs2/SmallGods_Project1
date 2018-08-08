@@ -18,7 +18,10 @@ Player::~Player()
 
 void Player::Tick(DWORD dt)
 {
-	Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / 1000.0f));
+	if(GetKeyState(0x44)&256)
+		Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / 1000.0f));
+	if (GetKeyState(0x41) & 256)
+		Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(-(dt / 1000.0f)));
 }
 /*
 void Player::Tick(DWORD dt)

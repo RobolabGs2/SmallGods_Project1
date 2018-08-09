@@ -4,7 +4,9 @@ class  Voxel;
 
 #include "Direct3Dbox.h"
 #include "PhysicalBox.h"
+#include "CustomVectorMath.h"
 #include <DirectXMath.h>
+#include <stdlib.h>
 #include <vector>
 
 using namespace DirectX;
@@ -38,7 +40,9 @@ public:
 	//	Пересчитывает массивы для отображения
 	void RecalculateImage();
 	//	Рекурсивно генерирует неровности поверхности
-	void Mound(int depth);
+	void Mound(int depth, float factor);
+	//	Считает объём меша
+	float CalculateVolume();
 	//	Деструктор
 	~ Voxel();
 	// Абсолютные координаты

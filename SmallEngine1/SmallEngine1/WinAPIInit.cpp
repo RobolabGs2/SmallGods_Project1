@@ -26,7 +26,7 @@ WinAPIInit::WinAPIInit(HINSTANCE hInstance, int nCmdShow)
 
 	hWnd = CreateWindow(L"class", L"SmallEngine",
 		WS_OVERLAPPEDWINDOW,
-		0, 0, 1920 / 2, 1200 / 2,
+		0, 0, 1920 / 1, 1200 / 1,
 		NULL, NULL, hInstance, NULL);
 
 

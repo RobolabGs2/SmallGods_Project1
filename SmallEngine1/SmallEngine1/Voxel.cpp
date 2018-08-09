@@ -86,7 +86,9 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 	this->indices = indices;
 	this->location = location;
 
+
 	Rotation = XMMatrixRotationX(0);
+	float volume = CalculateVolume();
 	RecalculateImage();
 }
 
@@ -147,36 +149,76 @@ void Voxel::RecalculateImage()
 }
 
 
-void Voxel::Mound(int depth)
+void Voxel::Mound(int depth, float factor)
 {
 	if (depth <= 0)
 		return;
 
-	std::vector<WORD> newIndices = std::vector<WORD>(indices.size() * 3);
+	std::vector<WORD> newIndices = std::vector<WORD>(0);
+
+	float multiplier = factor / (float)RAND_MAX;
 
 	for (int i = 0; i < indices.size(); i += 3)
 	{
-		XMVECTOR v = XMVectorScale(XMVectorAdd(XMVectorAdd(vertices[indices[i]], vertices[indices[i + 1]]), 
-			 vertices[indices[i + 2]]), 1.0f / 3.0f);
-		v = XMVectorAdd(v, XMVectorSet(0.0, 0.2, 0.0, 0.0));
-		WORD index = vertices.size();
-		vertices.push_back(v);
+		XMVECTOR v = XMVectorScale(XMVectorAdd(XMVectorAdd(vertices[indices[i]], vertices[indices[i + 1]]),
+			vertices[indices[i + 2]]), 1.0f / 3.0f);
 
-		newIndices[i * 3 + 0] = index;
-		newIndices[i * 3 + 1] = indices[i + 1];
-		newIndices[i * 3 + 2] = indices[i + 2];
+		XMVECTOR a = XMVectorSubtract((vertices[indices[i + 1]]), (vertices[indices[i]]));
+		XMVECTOR b = XMVectorSubtract((vertices[indices[i + 2]]), (vertices[indices[i]]));
+		if(CVMSinAngle(a, b) > 0.6)
+		{
+			float area = sqrt(CVMArea(a, b));
+			v = XMVectorAdd(v, area * (std::rand() ) * multiplier * XMVector3Normalize(XMVector3Cross(a, b)));
+			/*
+			v = XMVectorAdd(v, XMVectorSet(area * std::rand() * multiplier,
+				area * std::rand() * multiplier, area * std::rand() * multiplier, 0.0));*/
 
-		newIndices[i * 3 + 3] = indices[i + 0];
-		newIndices[i * 3 + 4] = index;
-		newIndices[i * 3 + 5] = indices[i + 2];
+			WORD index = vertices.size();
+			vertices.push_back(v);
 
-		newIndices[i * 3 + 6] = indices[i + 0];
-		newIndices[i * 3 + 7] = indices[i + 1];
-		newIndices[i * 3 + 8] = index;
+			newIndices.push_back(index);
+			newIndices.push_back(indices[i + 1]);
+			newIndices.push_back(indices[i + 2]);
+
+			newIndices.push_back(indices[i + 0]);
+			newIndices.push_back(index);
+			newIndices.push_back(indices[i + 2]);
+
+			newIndices.push_back(indices[i + 0]);
+			newIndices.push_back(indices[i + 1]);
+			newIndices.push_back(index);
+		}
+		else
+		{
+			newIndices.push_back(indices[i + 0]);
+			newIndices.push_back(indices[i + 1]);
+			newIndices.push_back(indices[i + 2]);
+		}
 	}
 
 	indices = newIndices;
-	Mound(depth - 1);
+	Mound(depth - 1, factor);
+}
+
+
+float Voxel::CalculateVolume()
+{
+	std::vector<XMFLOAT3>	fv = std::vector<XMFLOAT3>(vertices.size());
+	for (int i = 0; i < vertices.size(); i++)
+		XMStoreFloat3(&(fv[i]), vertices[i]);
+
+	float volume = 0;
+
+	for (int i = 0; i < indices.size(); i += 3)
+	{
+		float h = (fv[indices[i + 0]].y + fv[indices[i + 1]].y + fv[indices[i + 2]].y) / 3;
+		float s = (
+			fv[indices[i + 2]].z * (fv[indices[i + 0]].x - fv[indices[i + 1]].x) +
+			fv[indices[i + 1]].z * (fv[indices[i + 2]].x - fv[indices[i + 0]].x) +
+			fv[indices[i + 0]].z * (fv[indices[i + 1]].x - fv[indices[i + 2]].x)) / 2;
+		volume += s * h;
+	}
+	return volume;
 }
 
 Voxel::~Voxel()

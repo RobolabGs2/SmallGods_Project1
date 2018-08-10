@@ -21,7 +21,6 @@ protected:
 	XMMATRIX				Rotation;		//	Матрица поворота
 	XMFLOAT3				location;		//	Координаты расположения объекта
 	std::vector<Vertex>		img_vertices;	//	Массив вершин
-	std::vector<WORD>		img_indices;	//	Массив индексов
 	std::vector<XMVECTOR>	vertices;		//	Массив вершин
 	std::vector<WORD>		indices;		//	Массив индексов
 public:	

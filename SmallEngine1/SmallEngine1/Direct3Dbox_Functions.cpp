@@ -19,7 +19,7 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 
 	cb.mView = XMMatrixTranspose(camera->GetView());
 	cb.mWorld = XMMatrixTranspose(World);
-	cb.vOutputColor = {0.9f, 0.9f, 0.2f, 1.0f };
+	cb.vOutputColor = {0.02f, 0.22f, 0.44f, 1.0f };
 
 	pImmediateContext->UpdateSubresource(pConstantBuffer, 0, NULL, &cb, 0, 0);
 
@@ -43,24 +43,10 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 	Exp(hr);
 
 
-	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;				// Структура, описывающая создаваемый буфер
-	bd.ByteWidth = sizeof(WORD) * pVoxel->img_indices.size();			// 6 граней = 12 треугольников = 36 вершин
-	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;		// тип - буфер индексов
-	bd.CPUAccessFlags = 0;
-	InitData.pSysMem = &(pVoxel->img_indices)[0];			// указатель на наш массив индексов
-	
-	// Вызов метода pd3dDevice создаст объект буфера индексов
-	ID3D11Buffer* pIndexBuffer = NULL;
-	hr = pd3dDevice->CreateBuffer(&bd, &InitData, &pIndexBuffer);
-	Exp(hr);
-
 	// Установка буфера вершин:
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	pImmediateContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
-	// Установка буфера индексов
-	pImmediateContext->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
 
 	//	Устанавливаем шейдеры и константные буферы
@@ -69,10 +55,10 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 	pImmediateContext->PSSetShader(pPixelShader[0 /* Тут по идеи должен меняться номер*/], NULL, 0);
 	pImmediateContext->PSSetConstantBuffers(0, 1, &pConstantBuffer);
 
-	pImmediateContext->DrawIndexed(pVoxel->img_indices.size(), 0, 0);
+	//pImmediateContext->DrawIndexed(pVoxel->img_indices.size(), 0, 0);
+	pImmediateContext->Draw(pVoxel->img_vertices.size(), 0);
 
 	pVertexBuffer->Release();
-	pIndexBuffer->Release();
 
 }
 

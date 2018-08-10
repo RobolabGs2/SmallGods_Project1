@@ -90,6 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -105,6 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,6 +123,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,6 +143,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,6 +156,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CustomVectorMath.h" />
     <ClInclude Include="Direct3Dbox.h" />
+    <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Voxel.h" />
     <ClInclude Include="PhysicalBox.h" />
@@ -166,6 +171,7 @@
     <ClCompile Include="CustomVectorMath.cpp" />
     <ClCompile Include="Direct3Dbox.cpp" />
     <ClCompile Include="Direct3Dbox_Functions.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Voxel.cpp" />
     <ClCompile Include="PhysicalBox.cpp" />

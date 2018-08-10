@@ -47,7 +47,7 @@ void PhysicalBox::GenerateVoxels(Direct3Dbox* pDXBox)
 		0,1,3,
 	};
 
-	//AddObject(new Voxel(NULL, NULL, pDXBox, this));
+	AddObject(new Voxel(NULL, NULL, pDXBox, this));
 
 	Voxel* pyramid = new Voxel(NULL, NULL, pDXBox, this, vertices, indices, XMFLOAT3(0, 3, 0));
 	//pyramid->Mound(5, 0.2);

@@ -16,63 +16,40 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 	this->pPhBox = pPhBox;
 	
 	//	Пока делаем кубик, потом надо сделат какой-нибудь генератор
-	img_vertices =
-	{  /* координаты X, Y, Z                          нормаль X, Y, Z     */
-		{ XMFLOAT3(-1.0f, 2.0f, -1.0f),		XMFLOAT3(0.0f, 1.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, 2.0f, -1.0f),		XMFLOAT3(0.0f, 1.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, 2.0f, 1.0f),		XMFLOAT3(0.0f, 1.0f, 0.0f) },
-		{ XMFLOAT3(-1.0f, 2.0f, 1.0f),		XMFLOAT3(0.0f, 1.0f, 0.0f) },
+	vertices =
+	{
+		XMVectorSet(-1.0f, -2.0f, -1.0f, 0.0f),
+		XMVectorSet(1.0f, -2.0f, -1.0f, 0.0f),
+		XMVectorSet(1.0f, 2.0f, -1.0f, 0.0f),
+		XMVectorSet(-1.0f, 2.0f, -1.0f, 0.0f),
 
-		{ XMFLOAT3(-1.0f, -2.0f, -1.0f),	XMFLOAT3(0.0f, -1.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, -2.0f, -1.0f),		XMFLOAT3(0.0f, -1.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, -2.0f, 1.0f),		XMFLOAT3(0.0f, -1.0f, 0.0f) },
-		{ XMFLOAT3(-1.0f, -2.0f, 1.0f),		XMFLOAT3(0.0f, -1.0f, 0.0f) },
-
-		{ XMFLOAT3(-1.0f, -2.0f, 1.0f),		XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-		{ XMFLOAT3(-1.0f, -2.0f, -1.0f),	XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-		{ XMFLOAT3(-1.0f, 2.0f, -1.0f),		XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-		{ XMFLOAT3(-1.0f, 2.0f, 1.0f),		XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-
-		{ XMFLOAT3(1.0f, -2.0f, 1.0f),		XMFLOAT3(1.0f, 0.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, -2.0f, -1.0f),		XMFLOAT3(1.0f, 0.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, 2.0f, -1.0f),		XMFLOAT3(1.0f, 0.0f, 0.0f) },
-		{ XMFLOAT3(1.0f, 2.0f, 1.0f),		XMFLOAT3(1.0f, 0.0f, 0.0f) },
-
-		{ XMFLOAT3(-1.0f, -2.0f, -1.0f),	XMFLOAT3(0.0f, 0.0f, -1.0f) },
-		{ XMFLOAT3(1.0f, -2.0f, -1.0f),		XMFLOAT3(0.0f, 0.0f, -1.0f) },
-		{ XMFLOAT3(1.0f, 2.0f, -1.0f),		XMFLOAT3(0.0f, 0.0f, -1.0f) },
-		{ XMFLOAT3(-1.0f, 2.0f, -1.0f),		XMFLOAT3(0.0f, 0.0f, -1.0f) },
-
-		{ XMFLOAT3(-1.0f, -2.0f, 1.0f),		XMFLOAT3(0.0f, 0.0f, 1.0f) },
-		{ XMFLOAT3(1.0f, -2.0f, 1.0f),		XMFLOAT3(0.0f, 0.0f, 1.0f) },
-		{ XMFLOAT3(1.0f, 2.0f, 1.0f),		XMFLOAT3(0.0f, 0.0f, 1.0f) },
-		{ XMFLOAT3(-1.0f, 2.0f, 1.0f),		XMFLOAT3(0.0f, 0.0f, 1.0f) },
+		XMVectorSet(-1.0f, -2.0f, 1.0f, 0.0f),
+		XMVectorSet(1.0f, -2.0f, 1.0f, 0.0f),
+		XMVectorSet(1.0f, 2.0f, 1.0f, 0.0f),
+		XMVectorSet(-1.0f, 2.0f, 1.0f, 0.0f),
 	};
 	
-	img_indices =
+	indices =
 	{
-		3,1,0,
-		2,1,3,
-
-		6,4,5,
-		7,4,6,
-
-		11,9,8,
-		10,9,11,
-
-		14,12,13,
-		15,12,14,
-
-		19,17,16,
-		18,17,19,
-
-		22,20,21,
-		23,20,22
+		0,3,2,
+		0,2,1,
+		1,2,6,
+		1,6,5,
+		5,6,7,
+		5,7,4,
+		4,7,3,
+		4,3,0,
+		3,7,6,
+		3,6,2,
+		4,0,1,
+		4,1,5,
 	};
 
 	location = XMFLOAT3(0, 0, 0);
-
 	Rotation = XMMatrixRotationX(0);
+
+	RecalculateImage();
+
 }
 Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox,
 	std::vector<XMVECTOR> vertices, std::vector<WORD> indices, XMFLOAT3 location)
@@ -117,7 +94,6 @@ void Voxel::Tick(DWORD dt)
 void Voxel::RecalculateImage()
 {
 	img_vertices = std::vector<Vertex>(indices.size());
-	img_indices = std::vector<WORD>(indices.size() );
 
 	for (int i = 0; i < indices.size(); i += 3)
 	{
@@ -140,11 +116,6 @@ void Voxel::RecalculateImage()
 		img_vertices[i + 0] = { f0, normal };
 		img_vertices[i + 1] = { f1, normal };
 		img_vertices[i + 2] = { f2, normal };
-
-		img_indices[i + 0] = i + 0;
-		img_indices[i + 1] = i + 1;
-		img_indices[i + 2] = i + 2;
-
 	}
 }
 

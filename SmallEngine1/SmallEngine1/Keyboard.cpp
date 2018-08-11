@@ -25,7 +25,7 @@ void Keyboard::Tick(DWORD dt)
 {
 	for(auto p = Actions.begin(); p!=Actions.end(); ++p)
 	{
-		if (GetKeyState(Buttons[p->first]) & 256)
+		if (GetKeyState(Buttons[p->first]) & 256 && GetFocus())
 			(Actions[p->first])(dt);
 	}
 

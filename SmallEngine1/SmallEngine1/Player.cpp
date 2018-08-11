@@ -27,6 +27,12 @@ Player::Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pP
 	keyboard->AddAction(eKeyAction::MOVE_LEFT, [&](DWORD dt) {
 		location.x += dt * -0.01f;
 	});
+	keyboard->AddAction(eKeyAction::TURN_UP, [&](DWORD dt) {
+		location.y += dt * 0.01f;
+	});
+	keyboard->AddAction(eKeyAction::TURN_DOWN, [&](DWORD dt) {
+		location.y += dt * -0.01f;
+	});
 };
 
 

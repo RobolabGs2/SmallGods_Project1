@@ -50,6 +50,8 @@ public:
 	XMMATRIX GetRotation();
 	//	Возвращает координату 
 	XMFLOAT3 GetLocation();
+	XMVECTOR GetVectorCourse();
+	void EditLocation(XMVECTOR addVector);
 	//	Друзья))
 	friend class Direct3Dbox;
 	friend class PhysicalBox;

@@ -10,10 +10,10 @@ Player::Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pP
 	Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationX(0.2));
 
 	keyboard->AddAction(eKeyAction::TURN_RIGHT, [&](DWORD dt) {
-			Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / 1000.0f));
+			Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / 800.0f));
 	});
 	keyboard->AddAction(eKeyAction::TURN_LEFT, [&](DWORD dt) {
-		Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / -1000.0f));
+		Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / -800.0f));
 	});
 	keyboard->AddAction(eKeyAction::MOVE_FORWARD, [&](DWORD dt) {
 		location.z += dt * 0.01f;
@@ -28,10 +28,10 @@ Player::Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pP
 		location.x += dt * -0.01f;
 	});
 	keyboard->AddAction(eKeyAction::TURN_UP, [&](DWORD dt) {
-		location.y += dt * 0.01f;
+		location.y += dt * 0.005f;
 	});
 	keyboard->AddAction(eKeyAction::TURN_DOWN, [&](DWORD dt) {
-		location.y += dt * -0.01f;
+		location.y += dt * -0.005f;
 	});
 };
 

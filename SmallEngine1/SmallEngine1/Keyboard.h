@@ -1,22 +1,23 @@
 #pragma once
 #include <windows.h>
 #include <functional>
-typedef std::function<void(DWORD)> Action;
-#include "Player.h"
+typedef std::function<void(DWORD)> KeyAction;
 #include <map>
+#include "Mouse.h"
 enum eKeyAction;
 enum eKeyCodes;
 class Keyboard
 {
 protected:
-	std::map<BYTE, Action> Actions;
+	std::map<int, eKeyCodes> Buttons;
+	std::map<int, KeyAction> Actions;
+	Mouse* mouse;
 
 public:
-	Keyboard();
+	Keyboard(Mouse*);
 	~Keyboard();
-	void AddAction(eKeyAction, Action);
+	void AddAction(eKeyAction, KeyAction);
 	void Tick(DWORD);
-	std::map<BYTE, eKeyCodes> Buttons;
 };
 enum eKeyAction
 {
@@ -36,6 +37,7 @@ enum eKeyCodes
 	KEY_MBUTTON = 0x04, // Middle mouse button (three-button mouse)
 	KEY_XBUTTON1 = 0x05, // X1 mouse button
 	KEY_XBUTTON2 = 0x06, // X2 mouse button
+	
 	KEY_BACK = 0x08, // BACKSPACE key
 	KEY_TAB = 0x09, // TAB key
 	KEY_CLEAR = 0x0C, // CLEAR key
@@ -182,6 +184,11 @@ enum eKeyCodes
 	KEY_PA1 = 0xFD,
 	KEY_OEMCLEAR = 0xFE,
 
-	KEY_MAX = 0x100
+	KEY_MAX = 0x100,
+
+	KEY_MOUSE_LEFT = 0x101,
+	KEY_MOUSE_RIGHT = 0x102,
+	KEY_MOUSE_FORWARD = 0x103,
+	KEY_MOUSE_BACKWARD = 0x104,
 };
 

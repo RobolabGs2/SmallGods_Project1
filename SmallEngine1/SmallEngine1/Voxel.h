@@ -20,6 +20,7 @@ protected:
 	Voxel*					pPrev;			//	Ссылка на предыдущий
 	XMMATRIX				Rotation;		//	Матрица поворота
 	XMFLOAT3				location;		//	Координаты расположения объекта
+	float					volume;			//	Объём меша
 	std::vector<Vertex>		img_vertices;	//	Массив вершин
 	std::vector<XMVECTOR>	vertices;		//	Массив вершин
 	std::vector<WORD>		indices;		//	Массив индексов
@@ -40,8 +41,8 @@ public:
 	void RecalculateImage();
 	//	Рекурсивно генерирует неровности поверхности
 	void Mound(int depth, float factor);
-	//	Считает объём меша
-	float CalculateVolume();
+	//	Обновляет физические параметры (объём и центр масс)
+	void RecalculatePhisicalParams();
 	//	Деструктор
 	~ Voxel();
 	// Абсолютные координаты

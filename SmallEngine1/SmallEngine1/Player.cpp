@@ -5,7 +5,7 @@
 Player::Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox, Keyboard* keyboard):Voxel(pNext, pPrev, pDXbox, pPhBox)
 {
 
-	location = XMFLOAT3(0, 5, -11);
+	location = XMFLOAT3(0, 4, -11);
 	Rotation = XMMatrixRotationY(-3.14159265358979/2 );
 	Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationX(0.2));
 

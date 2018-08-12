@@ -47,6 +47,7 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 
 	location = XMFLOAT3(0, 0, 0);
 	Rotation = XMMatrixRotationX(0);
+	RecalculatePhisicalParams();
 
 	RecalculateImage();
 
@@ -65,7 +66,7 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 
 
 	Rotation = XMMatrixRotationX(0);
-	float volume = CalculateVolume();
+	RecalculatePhisicalParams();
 	RecalculateImage();
 }
 
@@ -87,7 +88,8 @@ void Voxel::Tick(DWORD dt)
 		ћј√»я (физика)
 		ћј√»я (физика)
 	*/
-	Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / 1000.0f));
+	if(volume < 15)
+		Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / 1000.0f));
 	pDXbox->Draw(this);
 }
 
@@ -172,7 +174,7 @@ void Voxel::Mound(int depth, float factor)
 }
 
 
-float Voxel::CalculateVolume()
+void Voxel::RecalculatePhisicalParams()
 {
 	std::vector<XMFLOAT3>	fv = std::vector<XMFLOAT3>(vertices.size());
 	for (int i = 0; i < vertices.size(); i++)
@@ -180,16 +182,52 @@ float Voxel::CalculateVolume()
 
 	float volume = 0;
 
+	XMVECTOR O = XMVectorSet(0, 0, 0, 0);
+	XMVECTOR mult = XMVectorSet(1, 0, 1, 1);
+
 	for (int i = 0; i < indices.size(); i += 3)
 	{
-		float h = (fv[indices[i + 0]].y + fv[indices[i + 1]].y + fv[indices[i + 2]].y) / 3;
+		float h0 = (fv[indices[i + 0]].y) / 3;
+		float h01 = (fv[indices[i + 0]].y + fv[indices[i + 1]].y) / 3;
+		float h012 = (fv[indices[i + 0]].y + fv[indices[i + 1]].y + fv[indices[i + 2]].y) / 3;
 		float s = (
 			fv[indices[i + 2]].z * (fv[indices[i + 0]].x - fv[indices[i + 1]].x) +
 			fv[indices[i + 1]].z * (fv[indices[i + 2]].x - fv[indices[i + 0]].x) +
 			fv[indices[i + 0]].z * (fv[indices[i + 1]].x - fv[indices[i + 2]].x)) / 2;
-		volume += s * h;
+		//	ѕыталс€ не запутатьс€, но, кажетс€, всЄ стало ещЄ хуже
+		float v0 = s * h0;
+		float v01 = s * h01;
+		float v012 = s * h012;
+		float v1 = v01 - v0;
+		float v2 = v012 - v01;
+
+		XMVECTOR A0 = vertices[indices[i + 0]];
+		XMVECTOR A1 = vertices[indices[i + 1]];
+		XMVECTOR A2 = vertices[indices[i + 2]];
+		XMVECTOR B0 = A0 * mult;
+		XMVECTOR B1 = A1 * mult;
+		XMVECTOR B2 = A2 * mult;
+
+		XMVECTOR O0 = (B0 + B1 + B2 + A0) / 4;
+		XMVECTOR O1 = (B1 + B2 + A0 + A1) / 4;
+		XMVECTOR O2 = (B2 + A0 + A1 + A2) / 4;
+
+		O += O0 * v0 + O1 * v1 + O2 * v2;
+
+		volume += v012;
 	}
-	return volume;
+	O = - O / volume;
+	this->volume = volume;
+
+	for (int i = 0; i < vertices.size(); i++)
+		vertices[i] += O;
+	XMFLOAT3 Of3;
+	XMStoreFloat3(&Of3, O);
+
+	location.x -= Of3.x;
+	location.y -= Of3.y;
+	location.z -= Of3.z;
+
 }
 
 Voxel::~Voxel()

@@ -33,7 +33,7 @@ void PhysicalBox::GenerateVoxels(Direct3Dbox* pDXBox)
 
 	std::vector<XMVECTOR> vertices =
 	{
-		XMVectorSet(0.0f,  -len,  0.0f, 0.0f),
+		XMVectorSet(0.0f,  -len,  len, 0.0f),
 		XMVectorSet(0.0f,  0.0f, -len, 0.0f),
 		XMVectorSet(-len ,  0.0f,  len, 0.0f),
 		XMVectorSet(len ,  0.0f,  len, 0.0f),
@@ -49,7 +49,7 @@ void PhysicalBox::GenerateVoxels(Direct3Dbox* pDXBox)
 
 	AddObject(new Voxel(NULL, NULL, pDXBox, this));
 
-	Voxel* pyramid = new Voxel(NULL, NULL, pDXBox, this, vertices, indices, XMFLOAT3(0, 3, 0));
+	Voxel* pyramid = new Voxel(NULL, NULL, pDXBox, this, vertices, indices, XMFLOAT3(2, 3, 0));
 	//pyramid->Mound(5, 0.2);
 	//float volume = pyramid->CalculateVolume();
 	pyramid->RecalculateImage();

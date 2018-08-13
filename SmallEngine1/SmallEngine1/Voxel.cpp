@@ -215,7 +215,7 @@ XMFLOAT3 Voxel::GetLocation()
 
 XMVECTOR Voxel::GetVectorCourse()
 {
-	return XMVector3Transform(XMVectorSet(1, 0, 0, 0), this->GetRotation()) - XMLoadFloat3(&location);
+	return XMVector3Transform(XMVectorSet(1, 0, 0, 0), this->GetRotation());
 }
 
 void Voxel::EditLocation(XMVECTOR addVector)

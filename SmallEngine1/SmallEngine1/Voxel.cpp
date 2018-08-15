@@ -211,3 +211,36 @@ XMFLOAT3 Voxel::GetLocation()
 {
 	return location;
 }
+
+
+XMVECTOR Voxel::GetVectorCourse()
+{
+	return XMVector3Transform(XMVectorSet(1, 0, 0, 0), this->GetRotation());
+}
+
+void Voxel::EditLocation(XMVECTOR addVector)
+{
+	XMFLOAT3 v;
+	XMStoreFloat3(&v, addVector);
+	location.x += v.x;
+	location.y += v.y;
+	location.z += v.z;
+}
+void Voxel::EditLocationXZ(XMVECTOR addVector)
+{
+	XMFLOAT3 v;
+	XMStoreFloat3(&v, addVector);
+	location.x += v.x;
+	location.z += v.z;
+}
+void Voxel::EditLocationY(XMVECTOR addVector)
+{
+	XMFLOAT3 v;
+	XMStoreFloat3(&v, addVector);
+	location.y += v.y;
+}
+
+void Voxel::EditRotation(XMMATRIX addRotation)
+{
+	Rotation = XMMatrixMultiply(Rotation, addRotation);
+}

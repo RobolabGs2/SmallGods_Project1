@@ -13,7 +13,7 @@ using namespace DirectX;
 
 class  Voxel
 {
-protected:
+private:
 	Direct3Dbox*			pDXbox;			//	основной Direct3Dbox
 	PhysicalBox*			pPhBox;			//	родительский PhysicalBox
 	Voxel*					pNext;			//	Ссылка на следующий
@@ -50,6 +50,11 @@ public:
 	XMMATRIX GetRotation();
 	//	Возвращает координату 
 	XMFLOAT3 GetLocation();
+	XMVECTOR GetVectorCourse();
+	void EditLocation(XMVECTOR addVector);
+	void EditLocationXZ(XMVECTOR addVector);
+	void EditLocationY(XMVECTOR addVector);
+	void EditRotation(XMMATRIX addRotation);
 	//	Друзья))
 	friend class Direct3Dbox;
 	friend class PhysicalBox;

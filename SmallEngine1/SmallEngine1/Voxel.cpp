@@ -226,3 +226,21 @@ void Voxel::EditLocation(XMVECTOR addVector)
 	location.y += v.y;
 	location.z += v.z;
 }
+void Voxel::EditLocationXZ(XMVECTOR addVector)
+{
+	XMFLOAT3 v;
+	XMStoreFloat3(&v, addVector);
+	location.x += v.x;
+	location.z += v.z;
+}
+void Voxel::EditLocationY(XMVECTOR addVector)
+{
+	XMFLOAT3 v;
+	XMStoreFloat3(&v, addVector);
+	location.y += v.y;
+}
+
+void Voxel::EditRotation(XMMATRIX addRotation)
+{
+	Rotation = XMMatrixMultiply(Rotation, addRotation);
+}

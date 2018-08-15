@@ -5,7 +5,7 @@
 Player::Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox, Keyboard* keyboard):Voxel(pNext, pPrev, pDXbox, pPhBox)
 {
 
-	location = XMFLOAT3(0, 0, 0);
+	location = XMFLOAT3(0, 0, -10);
 	Rotation = XMMatrixRotationY(-3.14159265358979/2 );
 	Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationX(0.2));
 
@@ -29,10 +29,12 @@ Player::Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pP
 		EditLocation(dt*XMVector3Transform(GetVectorCourse(), XMMatrixRotationY(-3.1415926/2))*speed);
 	});
 	keyboard->AddAction(eKeyAction::TURN_UP, [&](DWORD dt) {
-		location.y += dt * 0.005f;
+		Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationX(dt / -800.0f));
+		
 	});
 	keyboard->AddAction(eKeyAction::TURN_DOWN, [&](DWORD dt) {
-		location.y += dt * -0.005f;
+		Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationX(dt / 800.0f));
+
 	});
 };
 

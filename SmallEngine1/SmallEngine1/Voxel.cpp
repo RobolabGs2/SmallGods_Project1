@@ -223,6 +223,6 @@ void Voxel::EditLocation(XMVECTOR addVector)
 	XMFLOAT3 v;
 	XMStoreFloat3(&v, addVector);
 	location.x += v.x;
-	//location.y += v.y;
+	location.y += v.y;
 	location.z += v.z;
 }

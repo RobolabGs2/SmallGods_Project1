@@ -45,7 +45,7 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 		4,1,5,
 	};
 
-	location = XMFLOAT3(0, 0, 0);
+	location = XMVectorSet(0, 0, 0, 0);
 	Rotation = XMMatrixRotationX(0);
 	RecalculatePhisicalParams();
 
@@ -53,7 +53,7 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 
 }
 Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox,
-	std::vector<XMVECTOR> vertices, std::vector<WORD> indices, XMFLOAT3 location)
+	std::vector<XMVECTOR> vertices, std::vector<WORD> indices, XMVECTOR location)
 {
 	this->pNext = pNext;
 	this->pPrev = pPrev;
@@ -216,17 +216,13 @@ void Voxel::RecalculatePhisicalParams()
 
 		volume += v012;
 	}
-	O = - O / volume;
+	O = O / volume;
 	this->volume = volume;
 
 	for (int i = 0; i < vertices.size(); i++)
-		vertices[i] += O;
-	XMFLOAT3 Of3;
-	XMStoreFloat3(&Of3, O);
+		vertices[i] -= O;
 
-	location.x -= Of3.x;
-	location.y -= Of3.y;
-	location.z -= Of3.z;
+	location += O;
 
 }
 
@@ -236,7 +232,7 @@ Voxel::~Voxel()
 
 XMMATRIX Voxel::GetMatrixWorld()
 {
-	return XMMatrixMultiply(Rotation, XMMatrixTranslation(location.x, location.y, location.z));
+	return XMMatrixMultiply(Rotation, XMMatrixTranslationFromVector(location));
 }
 
 XMMATRIX Voxel::GetRotation()
@@ -245,7 +241,7 @@ XMMATRIX Voxel::GetRotation()
 }
 
 
-XMFLOAT3 Voxel::GetLocation()
+XMVECTOR Voxel::GetLocation()
 {
 	return location;
 }
@@ -258,24 +254,17 @@ XMVECTOR Voxel::GetVectorCourse()
 
 void Voxel::EditLocation(XMVECTOR addVector)
 {
-	XMFLOAT3 v;
-	XMStoreFloat3(&v, addVector);
-	location.x += v.x;
-	location.y += v.y;
-	location.z += v.z;
+	location += addVector;
 }
 void Voxel::EditLocationXZ(XMVECTOR addVector)
 {
-	XMFLOAT3 v;
-	XMStoreFloat3(&v, addVector);
-	location.x += v.x;
-	location.z += v.z;
+	addVector *= XMVectorSet(1, 0, 1, 0);
+	location += addVector;
 }
 void Voxel::EditLocationY(XMVECTOR addVector)
 {
-	XMFLOAT3 v;
-	XMStoreFloat3(&v, addVector);
-	location.y += v.y;
+	addVector *= XMVectorSet(0, 1, 0, 0);
+	location += addVector;
 }
 
 void Voxel::EditRotation(XMMATRIX addRotation)

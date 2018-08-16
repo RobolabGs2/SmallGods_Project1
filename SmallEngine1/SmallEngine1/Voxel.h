@@ -19,7 +19,7 @@ private:
 	Voxel*					pNext;			//	Ссылка на следующий
 	Voxel*					pPrev;			//	Ссылка на предыдущий
 	XMMATRIX				Rotation;		//	Матрица поворота
-	XMFLOAT3				location;		//	Координаты расположения объекта
+	XMVECTOR				location;		//	Координаты расположения объекта
 	float					volume;			//	Объём меша
 	std::vector<Vertex>		img_vertices;	//	Массив вершин
 	std::vector<XMVECTOR>	vertices;		//	Массив вершин
@@ -32,7 +32,7 @@ public:
 	Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox);
 	//	Конструктор с задаваемым мешем	 
 	Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox,
-		std::vector<XMVECTOR> vertices, std::vector<WORD> indices, XMFLOAT3 location);
+		std::vector<XMVECTOR> vertices, std::vector<WORD> indices, XMVECTOR location);
 	//	Добавляет воксель перед данным. Возвращает ссылку на него
 	Voxel* AddPrev(Voxel* pVoxel);
 	//	Один такт просчёта физики
@@ -50,7 +50,7 @@ public:
 	//	Возвращает матрицу поворота
 	XMMATRIX GetRotation();
 	//	Возвращает координату 
-	XMFLOAT3 GetLocation();
+	XMVECTOR GetLocation();
 	XMVECTOR GetVectorCourse();
 	void EditLocation(XMVECTOR addVector);
 	void EditLocationXZ(XMVECTOR addVector);

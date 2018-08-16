@@ -20,14 +20,6 @@ Player::Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPh
 	auto keyboard = input->GetKeyboard();
 	keyboard->SetBindKey(binds);
 
-	keyboard->BindAction(eKeyAction::TURN_RIGHT, [&](DWORD dt)
-	{
-		EditRotation(XMMatrixRotationY((dt * speed_rotation)));
-	});
-	keyboard->BindAction(eKeyAction::TURN_LEFT, [&](DWORD dt)
-	{
-		EditRotation(XMMatrixRotationY((dt * -speed_rotation)));
-	});
 	keyboard->BindAction(eKeyAction::MOVE_FORWARD, [&](DWORD dt)
 	{
 		EditLocation(dt * GetVectorCourse() * speed);
@@ -44,6 +36,15 @@ Player::Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPh
 	{
 		EditLocationXZ(dt * XMVector3Transform(GetVectorCourse(), XMMatrixRotationY(3.1415926 / 2)) * -speed);
 	});
+	/* ћышкой как клавиатурой
+	keyboard->BindAction(eKeyAction::TURN_RIGHT, [&](DWORD dt)
+	{
+		EditRotation(XMMatrixRotationY((dt * speed_rotation)));
+	});
+	keyboard->BindAction(eKeyAction::TURN_LEFT, [&](DWORD dt)
+	{
+		EditRotation(XMMatrixRotationY((dt * -speed_rotation)));
+	});
 	keyboard->BindAction(eKeyAction::TURN_UP, [&](DWORD dt)
 	{
 		EditRotation(XMMatrixRotationAxis(
@@ -55,6 +56,14 @@ Player::Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPh
 		EditRotation(XMMatrixRotationAxis(
 			XMVector3Cross(XMVectorSet(0, 1, 0, 0),
 			               GetVectorCourse()), dt * speed_rotation));
+	});*/
+	///мышкой как мышкой
+	input->SetMouseAction([&](DWORD dt, float dx, float dy)
+	{
+		EditRotation(XMMatrixRotationY((dt * speed_rotation * dx)));
+		EditRotation(XMMatrixRotationAxis(
+			XMVector3Cross(XMVectorSet(0, 1, 0, 0),
+				GetVectorCourse()), dt * speed_rotation * dy));
 	});
 };
 

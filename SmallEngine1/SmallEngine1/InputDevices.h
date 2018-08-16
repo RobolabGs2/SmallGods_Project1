@@ -13,6 +13,7 @@ public:
 	~InputDevices();
 	void Tick(DWORD);
 	Keyboard<TKeyAction>* GetKeyboard();
+	void SetMouseAction(MouseAction);
 };
 
 template <class TKeyAction>
@@ -36,5 +37,11 @@ template <class TKeyAction>
 Keyboard<TKeyAction>* InputDevices<TKeyAction>::GetKeyboard()
 {
 	return &keyboard_;
+}
+
+template <class TKeyAction>
+void InputDevices<TKeyAction>::SetMouseAction(MouseAction action)
+{
+	mouse_.SetBindAction(action);
 }
 

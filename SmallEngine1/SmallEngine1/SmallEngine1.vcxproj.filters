@@ -57,6 +57,12 @@
     <ClInclude Include="Mouse.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="eKeyCode.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevices.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -87,9 +93,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="CustomVectorMath.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="Mouse.cpp">

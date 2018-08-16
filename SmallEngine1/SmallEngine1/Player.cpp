@@ -3,7 +3,7 @@
 #include <map>
 
 Player::Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox,
-               Keyboard<eKeyAction>* keyboard): Voxel(pNext, pPrev, pDXbox, pPhBox)
+               InputDevices<eKeyAction>* input): Voxel(pNext, pPrev, pDXbox, pPhBox)
 {
 	EditLocation(XMVectorSet(0, 0, -11, 0));
 	EditRotation(XMMatrixRotationY(-3.14159265358979 / 2));
@@ -17,6 +17,7 @@ Player::Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPh
 		{eKeyAction::TURN_UP, eKeyCodes::KEY_MOUSE_FORWARD},
 		{eKeyAction::TURN_DOWN, eKeyCodes::KEY_MOUSE_BACKWARD}
 	};
+	auto keyboard = input->GetKeyboard();
 	keyboard->SetBindKey(binds);
 
 	keyboard->BindAction(eKeyAction::TURN_RIGHT, [&](DWORD dt)

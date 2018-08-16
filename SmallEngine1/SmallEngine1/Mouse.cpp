@@ -67,7 +67,6 @@ bool Mouse::GetStatusKey(eMouseKey key)
 			dy = 0;
 		}
 		break;
-	//default:;
 	}
 	return flag;
 }

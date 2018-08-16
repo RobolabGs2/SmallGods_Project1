@@ -4,7 +4,7 @@
 typedef std::function<void(DWORD)> KeyboardAction;
 #include <map>
 #include "eKeyCode.h"
-
+enum class key_state {up = 0, down = 256};
 template <class TKeyAction>
 class Keyboard
 {
@@ -26,7 +26,7 @@ public:
 	void AddBindKey(std::map<TKeyAction, eKeyCodes>);
 	void SetBindKey(std::map<TKeyAction, eKeyCodes>);
 	// Привязать действие к виртуальной клавише
-	void BindAction(TKeyAction, KeyboardAction, bool pressed = true);
+	void BindAction(TKeyAction, KeyboardAction, key_state state = key_state::down);
 	void Tick(DWORD);
 };
 
@@ -76,18 +76,24 @@ void Keyboard<TKeyAction>::SetBindKey(std::map<TKeyAction, eKeyCodes> buttons)
 }
 
 template <class TKeyAction>
-void Keyboard<TKeyAction>::BindAction(TKeyAction key, KeyboardAction action, bool pressed)
+void Keyboard<TKeyAction>::BindAction(TKeyAction key, KeyboardAction action, key_state state)
 {
-	if (pressed)
-		key_down_actions_[key] = action;
-	else
+	switch(state)
+	{
+	case key_state::up: 
 		key_up_actions_[key] = action;
+		break;
+	case key_state::down: 
+		key_down_actions_[key] = action;
+		break;
+	//default: 
+		//todo бросить исключение;
+	}
 }
 
 template <class TKeyAction>
 void Keyboard<TKeyAction>::Tick(DWORD dt)
 {
-	mouse->Tick(dt);
 	for (auto p = key_down_actions_.begin(); p != key_down_actions_.end(); ++p)
 	{
 		if (GetFocus() && dt)

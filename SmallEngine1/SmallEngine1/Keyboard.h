@@ -9,8 +9,12 @@ template <class TKeyAction>
 class Keyboard
 {
 protected:
-	std::map<TKeyAction, eKeyCodes> Buttons;
-	std::map<TKeyAction, KeyboardAction> Actions;
+	// Привязки виртуальных кнопок к физическим
+	std::map<TKeyAction, eKeyCodes> bind_keys_;
+	// Для зажатых кнопок
+	std::map<TKeyAction, KeyboardAction> key_down_actions_;
+	// Для отжатых кнопок
+	std::map<TKeyAction, KeyboardAction> key_up_actions_;
 	Mouse* mouse;
 	static eMouseKey ConvertKeyCode(eKeyCodes);
 	const int button_pressed = 256;
@@ -22,7 +26,7 @@ public:
 	void AddBindKey(std::map<TKeyAction, eKeyCodes>);
 	void SetBindKey(std::map<TKeyAction, eKeyCodes>);
 	// Привязать действие к виртуальной клавише
-	void BindAction(TKeyAction, KeyboardAction);
+	void BindAction(TKeyAction, KeyboardAction, bool pressed = true);
 	void Tick(DWORD);
 };
 
@@ -53,7 +57,7 @@ Keyboard<TKeyAction>::~Keyboard()
 template <class TKeyAction>
 void Keyboard<TKeyAction>::AddBindKey(TKeyAction key, eKeyCodes code)
 {
-	Buttons[key] = code;
+	bind_keys_[key] = code;
 }
 
 template <class TKeyAction>
@@ -61,37 +65,53 @@ void Keyboard<TKeyAction>::AddBindKey(std::map<TKeyAction, eKeyCodes> binds)
 {
 	for (auto p = binds.begin(); p != binds.end(); ++p)
 	{
-		Buttons.insert(*p);
+		bind_keys_.insert(*p);
 	}
 }
 
 template <class TKeyAction>
 void Keyboard<TKeyAction>::SetBindKey(std::map<TKeyAction, eKeyCodes> buttons)
 {
-	Buttons = buttons;
+	bind_keys_ = buttons;
 }
 
 template <class TKeyAction>
-void Keyboard<TKeyAction>::BindAction(TKeyAction key, KeyboardAction action)
+void Keyboard<TKeyAction>::BindAction(TKeyAction key, KeyboardAction action, bool pressed)
 {
-	Actions[key] = action;
+	if (pressed)
+		key_down_actions_[key] = action;
+	else
+		key_up_actions_[key] = action;
 }
 
 template <class TKeyAction>
 void Keyboard<TKeyAction>::Tick(DWORD dt)
 {
 	mouse->Tick(dt);
-	for (auto p = Actions.begin(); p != Actions.end(); ++p)
+	for (auto p = key_down_actions_.begin(); p != key_down_actions_.end(); ++p)
 	{
 		if (GetFocus() && dt)
 		{
-			bool will_do = false;
-			if (Buttons[p->first] > eKeyCodes::KEY_MAX)
-				will_do = mouse->GetStatusKey(ConvertKeyCode(Buttons[p->first]));
+			bool pressed = false;
+			if (bind_keys_[p->first] > eKeyCodes::KEY_MAX)
+				pressed = mouse->GetStatusKey(ConvertKeyCode(bind_keys_[p->first]));
 			else
-				will_do = GetKeyState(static_cast<int>(Buttons[p->first])) & button_pressed;
-			if (will_do)
-				(Actions[p->first])(dt);
+				pressed = GetKeyState(static_cast<int>(bind_keys_[p->first])) & button_pressed;
+			if (pressed)
+				(p->second)(dt);
+		}
+	}
+	for (auto p = key_up_actions_.begin(); p != key_up_actions_.end(); ++p)
+	{
+		if (GetFocus() && dt)
+		{
+			bool pressed = false;
+			if (bind_keys_[p->first] > eKeyCodes::KEY_MAX)
+				pressed = mouse->GetStatusKey(ConvertKeyCode(bind_keys_[p->first]));
+			else
+				pressed = GetKeyState(static_cast<int>(bind_keys_[p->first])) & button_pressed;
+			if (!pressed)
+				(p->second)(dt);
 		}
 	}
 }

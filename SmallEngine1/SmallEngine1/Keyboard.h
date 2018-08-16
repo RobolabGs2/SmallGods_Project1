@@ -13,13 +13,14 @@ protected:
 	std::map<TKeyAction, KeyboardAction> Actions;
 	Mouse* mouse;
 	static eMouseKey ConvertKeyCode(eKeyCodes);
-
+	const int button_pressed = 256;
 public:
 	Keyboard(Mouse*);
 	~Keyboard();
 	// Привязать физическую клавишу к виртуальной
-	void BindKey(TKeyAction, eKeyCodes);
-	void BindKey(std::map<TKeyAction, eKeyCodes>);
+	void AddBindKey(TKeyAction, eKeyCodes);
+	void AddBindKey(std::map<TKeyAction, eKeyCodes>);
+	void SetBindKey(std::map<TKeyAction, eKeyCodes>);
 	// Привязать действие к виртуальной клавише
 	void BindAction(TKeyAction, KeyboardAction);
 	void Tick(DWORD);
@@ -50,13 +51,22 @@ Keyboard<TKeyAction>::~Keyboard()
 }
 
 template <class TKeyAction>
-void Keyboard<TKeyAction>::BindKey(TKeyAction key, eKeyCodes code)
+void Keyboard<TKeyAction>::AddBindKey(TKeyAction key, eKeyCodes code)
 {
 	Buttons[key] = code;
 }
 
 template <class TKeyAction>
-void Keyboard<TKeyAction>::BindKey(std::map<TKeyAction, eKeyCodes> buttons)
+void Keyboard<TKeyAction>::AddBindKey(std::map<TKeyAction, eKeyCodes> binds)
+{
+	for (auto p = binds.begin(); p != binds.end(); ++p)
+	{
+		Buttons.insert(*p);
+	}
+}
+
+template <class TKeyAction>
+void Keyboard<TKeyAction>::SetBindKey(std::map<TKeyAction, eKeyCodes> buttons)
 {
 	Buttons = buttons;
 }
@@ -79,7 +89,7 @@ void Keyboard<TKeyAction>::Tick(DWORD dt)
 			if (Buttons[p->first] > eKeyCodes::KEY_MAX)
 				will_do = mouse->GetStatusKey(ConvertKeyCode(Buttons[p->first]));
 			else
-				will_do = GetKeyState(Buttons[p->first]) & 256;
+				will_do = GetKeyState(static_cast<int>(Buttons[p->first])) & button_pressed;
 			if (will_do)
 				(Actions[p->first])(dt);
 		}

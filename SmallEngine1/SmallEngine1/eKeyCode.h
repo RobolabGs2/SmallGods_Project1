@@ -1,7 +1,7 @@
 #pragma once
 #include "Mouse.h"
 
-enum eKeyCodes
+enum class eKeyCodes
 {
 	// Left mouse button
 	KEY_LBUTTON = 0x01,

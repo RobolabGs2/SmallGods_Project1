@@ -44,7 +44,7 @@ public:
 	//	Обновляет физические параметры (объём и центр масс)
 	void RecalculatePhisicalParams();
 	//	Деструктор
-	~ Voxel();
+	virtual ~ Voxel();
 	// Абсолютные координаты
 	XMMATRIX GetMatrixWorld();
 	//	Возвращает матрицу поворота

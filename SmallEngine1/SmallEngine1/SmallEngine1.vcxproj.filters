@@ -92,9 +92,6 @@
     <ClCompile Include="CustomVectorMath.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="Mouse.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>

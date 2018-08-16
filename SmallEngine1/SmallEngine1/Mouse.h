@@ -2,10 +2,15 @@
 #include <windows.h>
 #include <functional>
 typedef std::function<void(DWORD, int, int)> MouseAction;
+
 enum eMouseKey
 {
-	LEFT, RIGHT, UP, DOWN
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN
 };
+
 class Mouse
 {
 private:
@@ -18,5 +23,3 @@ public:
 	bool GetStatusKey(eMouseKey key);
 	void Tick(DWORD);
 };
-
-

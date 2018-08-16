@@ -1,5 +1,5 @@
 #pragma once
-enum eKeyAction;
+enum class eKeyAction;
 class Player;
 
 #include "Direct3Dbox.h"
@@ -18,14 +18,15 @@ private:
 	float speed = 0.01f;
 	float speed_rotation = 0.0009f;
 public:
-	Player(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox, Keyboard<eKeyAction>* keyboard);
+	Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox, Keyboard<eKeyAction>* keyboard);
 	~Player();
 	void Tick(DWORD);
 };
 
-enum eKeyAction
+enum class eKeyAction
 {
-	MOVE_LEFT, MOVE_RIGHT,
+	MOVE_LEFT,
+	MOVE_RIGHT,
 	MOVE_FORWARD,
 	MOVE_BACKWARD,
 	TURN_LEFT,

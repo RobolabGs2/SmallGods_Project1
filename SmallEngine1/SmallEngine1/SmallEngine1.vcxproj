@@ -173,7 +173,6 @@
     <ClCompile Include="CustomVectorMath.cpp" />
     <ClCompile Include="Direct3Dbox.cpp" />
     <ClCompile Include="Direct3Dbox_Functions.cpp" />
-    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Voxel.cpp" />

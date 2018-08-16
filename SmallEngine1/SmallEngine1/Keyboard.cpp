@@ -1,21 +1,13 @@
 #include "stdafx.h"
 #include "Keyboard.h"
 
-eMouseKey ConvertKeyCode(eKeyCodes key) {
-	switch (key)
-	{
-	case eKeyCodes::KEY_MOUSE_LEFT: return eMouseKey::LEFT;
-	case eKeyCodes::KEY_MOUSE_RIGHT: return eMouseKey::RIGHT;
-	case eKeyCodes::KEY_MOUSE_FORWARD: return eMouseKey::UP;
-	case eKeyCodes::KEY_MOUSE_BACKWARD: return eMouseKey::DOWN;
-	default: throw "Ошибка перевода из клавиатуры в мышь";
-	}
-}
 
-Keyboard::Keyboard(Mouse* mouse)
+
+/*template<class TKeyAction> 
+Keyboard<TKeyAction>::Keyboard(Mouse* mouse)
 {
 	this->mouse = mouse;
-	Buttons = {
+	/*Buttons = {
 		{ eKeyAction::MOVE_LEFT, eKeyCodes::KEY_A },
 		{ eKeyAction::MOVE_RIGHT, eKeyCodes::KEY_D },
 		{ eKeyAction::MOVE_FORWARD, eKeyCodes::KEY_W },
@@ -28,11 +20,13 @@ Keyboard::Keyboard(Mouse* mouse)
 }
 
 
-Keyboard::~Keyboard()
+template<class TKeyAction>
+Keyboard<TKeyAction>::~Keyboard()
 {
 }
 
-void Keyboard::Tick(DWORD dt)
+template<class TKeyAction>
+void Keyboard<TKeyAction>::Tick(DWORD dt)
 {
 	mouse->Tick(dt);
 	for(auto p = Actions.begin(); p!=Actions.end(); ++p)
@@ -40,10 +34,10 @@ void Keyboard::Tick(DWORD dt)
 		if(GetFocus()&&dt)
 		{
 			bool will_do = false;
-			if (Buttons[p->first] > eKeyCodes::KEY_MAX)
-				will_do = mouse->GetStatusKey(ConvertKeyCode(Buttons[p->first]));
+			if (*Buttons[p->first] > eKeyCodes::KEY_MAX)
+				will_do = mouse->GetStatusKey(ConvertKeyCode(*Buttons[p->first]));
 			else
-				will_do = GetKeyState(Buttons[p->first]) & 256;
+				will_do = GetKeyState(*Buttons[p->first]) & 256;
 			if (will_do)
 				(Actions[p->first])(dt);
 		}
@@ -51,8 +45,21 @@ void Keyboard::Tick(DWORD dt)
 	}
 
 }
-void Keyboard::AddAction(eKeyAction key, KeyAction action)
+
+template <class TKeyAction>
+void Keyboard<TKeyAction>::BindKey(TKeyAction key, eKeyCodes code)
+{
+	*Buttons[key] = code;
+}
+
+template <class TKeyAction>
+void Keyboard<TKeyAction>::BindKey(std::map<TKeyAction, eKeyCodes>* buttons)
+{
+	Buttons = buttons;
+}
+
+template<class TKeyAction>
+void Keyboard<TKeyAction>::BindAction(TKeyAction key, KeyboardAction action)
 {
 	Actions[key] = action;
-
-}
+}*/

@@ -1,0 +1,12 @@
+#pragma once
+enum class eKeyAction
+{
+	MOVE_LEFT,
+	MOVE_RIGHT,
+	MOVE_FORWARD,
+	MOVE_BACKWARD,
+	TURN_LEFT,
+	TURN_RIGHT,
+	TURN_DOWN,
+	TURN_UP
+};

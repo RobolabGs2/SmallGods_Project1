@@ -16,6 +16,9 @@
     <Filter Include="Исходные файлы\Direct3Dbox">
       <UniqueIdentifier>{1b8ba301-fa49-4d10-aaff-b5a98bc2121d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы заголовков\InputDevices">
+      <UniqueIdentifier>{71ccc914-36ef-4be3-8781-519b321d446c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -51,17 +54,20 @@
     <ClInclude Include="CustomVectorMath.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Keyboard.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Mouse.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="eKeyCode.h">
+    <ClInclude Include="eKeyAction.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="InputDevices.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\InputDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="eKeyCode.h">
+      <Filter>Файлы заголовков\InputDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse.h">
+      <Filter>Файлы заголовков\InputDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard.h">
+      <Filter>Файлы заголовков\InputDevices</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

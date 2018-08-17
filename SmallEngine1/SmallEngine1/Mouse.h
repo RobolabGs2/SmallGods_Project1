@@ -2,7 +2,8 @@
 #include <windows.h>
 #include <functional>
 // Функция от времени, координаты по x, y
-typedef std::function<void(DWORD, float, float)> MouseAction;
+typedef std::function<void(DWORD, float, float)> MouseActionMove;
+typedef std::function<void(DWORD, int)> MouseActionScroll;
 
 enum eMouseKey
 {
@@ -16,13 +17,17 @@ class Mouse
 {
 private:
 	float dx = 0, dy = 0, sensitivity = 0.001f;
+	int scroll_ = 0;
 	void refresh_delta();
-	MouseAction bind_action = nullptr;
+	MouseActionMove bind_action_move = nullptr;
+	MouseActionScroll bind_action_scroll = nullptr;
 	HWND window;
 public:
 	Mouse(HWND);
 	~Mouse();
 	bool GetStatusKey(eMouseKey key);
+	void UpdateScroll(WPARAM, LPARAM);
 	void Tick(DWORD);
-	void SetBindAction(MouseAction);
+	void SetBindActionMove(MouseActionMove);
+	void SetBindActionScroll(MouseActionScroll);
 };

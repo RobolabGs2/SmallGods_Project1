@@ -42,8 +42,11 @@ void Mouse::Tick(DWORD dt)
 	{
 		if (dt) {
 			refresh_delta();
-			if (bind_action)
-				bind_action(dt, dx, dy);
+			if (bind_action_move)
+				bind_action_move(dt, dx, dy);
+			if (bind_action_scroll)
+				bind_action_scroll(dt, scroll_);
+			scroll_ = 0;
 		}
 		ShowCursor(FALSE);
 	}
@@ -51,9 +54,14 @@ void Mouse::Tick(DWORD dt)
 		ShowCursor(TRUE);
 }
 
-void Mouse::SetBindAction(MouseAction action)
+void Mouse::SetBindActionMove(MouseActionMove action)
 {
-	bind_action = action;
+	bind_action_move = action;
+}
+
+void Mouse::SetBindActionScroll(MouseActionScroll action)
+{
+	bind_action_scroll = action;
 }
 
 bool Mouse::GetStatusKey(eMouseKey key)
@@ -91,4 +99,8 @@ bool Mouse::GetStatusKey(eMouseKey key)
 		break;
 	}
 	return flag;
+}
+
+void Mouse::UpdateScroll(WPARAM, LPARAM)
+{
 }

@@ -1,11 +1,12 @@
 #pragma once
 #include <windows.h>
 #include <functional>
+#include "Cursor.h"
 // Функция от времени, координаты по x, y
 typedef std::function<void(DWORD, float, float)> MouseActionMove;
 typedef std::function<void(DWORD, int)> MouseActionScroll;
 
-enum eMouseKey
+enum class eMouseKey
 {
 	LEFT,
 	RIGHT,
@@ -20,6 +21,7 @@ private:
 	int scroll_ = 0;
 	void refresh_delta();
 	void refresh_scroll();
+	Cursor cursor_;
 	MouseActionMove bind_action_move = nullptr;
 	MouseActionScroll bind_action_scroll = nullptr;
 	HWND window;
@@ -30,4 +32,5 @@ public:
 	void Tick(DWORD);
 	void SetBindActionMove(MouseActionMove);
 	void SetBindActionScroll(MouseActionScroll);
+	void SetCursorState(CursorState);
 };

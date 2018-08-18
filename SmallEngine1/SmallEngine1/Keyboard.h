@@ -96,7 +96,7 @@ void Keyboard<TKeyAction>::Tick(DWORD dt)
 {
 	for (auto p = key_down_actions_.begin(); p != key_down_actions_.end(); ++p)
 	{
-		if (GetFocus() && dt)
+		if (dt)
 		{
 			bool pressed = false;
 			if (bind_keys_[p->first] > eKeyCodes::KEY_MAX)
@@ -109,7 +109,7 @@ void Keyboard<TKeyAction>::Tick(DWORD dt)
 	}
 	for (auto p = key_up_actions_.begin(); p != key_up_actions_.end(); ++p)
 	{
-		if (GetFocus() && dt)
+		if (dt)
 		{
 			bool pressed = false;
 			if (bind_keys_[p->first] > eKeyCodes::KEY_MAX)

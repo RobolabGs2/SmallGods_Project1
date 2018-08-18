@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Cursor.h" />
     <ClInclude Include="CustomVectorMath.h" />
     <ClInclude Include="Direct3Dbox.h" />
     <ClInclude Include="eKeyAction.h" />

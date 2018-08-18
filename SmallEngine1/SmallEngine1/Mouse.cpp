@@ -38,7 +38,7 @@ void Mouse::refresh_scroll()
 Mouse::Mouse(HWND window)
 {
 	this->window = window;
-	ShowCursor(FALSE);
+	cursor_.off();
 }
 
 
@@ -48,23 +48,15 @@ Mouse::~Mouse()
 
 void Mouse::Tick(DWORD dt)
 {
-	if (GetFocus())
-	{
-		refresh_scroll();
-		if (dt) {
-			refresh_delta();
-			if (bind_action_move)
-				bind_action_move(dt, dx, dy);
-			if(scroll_)
-
-			if (bind_action_scroll)
-				bind_action_scroll(dt, scroll_);
-			scroll_ = 0;
-		}
-		ShowCursor(FALSE);
+	refresh_scroll();
+	if (dt) {
+		refresh_delta();
+		if (bind_action_move)
+			bind_action_move(dt, dx, dy);
+		if (bind_action_scroll)
+			bind_action_scroll(dt, scroll_);
+		scroll_ = 0;
 	}
-	else
-		ShowCursor(TRUE);
 }
 
 void Mouse::SetBindActionMove(MouseActionMove action)
@@ -77,33 +69,38 @@ void Mouse::SetBindActionScroll(MouseActionScroll action)
 	bind_action_scroll = action;
 }
 
+void Mouse::SetCursorState(CursorState state)
+{
+	cursor_.SetState(state);
+}
+
 bool Mouse::GetStatusKey(eMouseKey key)
 {
 	bool flag = false;
 	switch (key)
 	{
-	case LEFT:
+	case eMouseKey::LEFT:
 		if (dx < -sensitivity)
 		{
 			flag = true;
 			//dx = 0;
 		}
 		break;
-	case RIGHT:
+	case eMouseKey::RIGHT:
 		if (dx > sensitivity)
 		{
 			flag = true;
 			//dx = 0;
 		}
 		break;
-	case UP:
+	case eMouseKey::UP:
 		if (dy < -sensitivity)
 		{
 			flag = true;
 			//dy = 0;
 		}
 		break;
-	case DOWN:
+	case eMouseKey::DOWN:
 		if (dy > sensitivity)
 		{
 			flag = true;

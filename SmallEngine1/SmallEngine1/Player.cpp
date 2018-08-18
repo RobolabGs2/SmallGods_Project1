@@ -65,6 +65,10 @@ Player::Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPh
 			XMVector3Cross(XMVectorSet(0, 1, 0, 0),
 				GetVectorCourse()), dt * speed_rotation * dy));
 	});
+	input->SetMouseAction([&](DWORD dt, int scroll)
+	{
+		EditLocationY(XMVectorSet(0, 0.1f, 0, 0)*scroll);
+	});
 };
 
 

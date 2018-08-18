@@ -16,7 +16,6 @@ public:
 	Keyboard<TKeyAction>* GetKeyboard();
 	void SetMouseAction(MouseActionMove);
 	void SetMouseAction(MouseActionScroll);
-	void UpdateScroll(WPARAM, LPARAM);
 };
 
 template <class TKeyAction>
@@ -52,10 +51,4 @@ template <class TKeyAction>
 void InputDevices<TKeyAction>::SetMouseAction(MouseActionScroll action)
 {
 	mouse_.SetBindActionScroll(action);
-}
-
-template <class TKeyAction>
-void InputDevices<TKeyAction>::UpdateScroll(WPARAM wparam, LPARAM lparam)
-{
-	mouse_.UpdateScroll(wparam, lparam);
 }

@@ -19,6 +19,7 @@ private:
 	float dx = 0, dy = 0, sensitivity = 0.001f;
 	int scroll_ = 0;
 	void refresh_delta();
+	void refresh_scroll();
 	MouseActionMove bind_action_move = nullptr;
 	MouseActionScroll bind_action_scroll = nullptr;
 	HWND window;
@@ -26,7 +27,6 @@ public:
 	Mouse(HWND);
 	~Mouse();
 	bool GetStatusKey(eMouseKey key);
-	void UpdateScroll(WPARAM, LPARAM);
 	void Tick(DWORD);
 	void SetBindActionMove(MouseActionMove);
 	void SetBindActionScroll(MouseActionScroll);

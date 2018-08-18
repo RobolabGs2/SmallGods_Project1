@@ -14,41 +14,28 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 	this->pPrev = pPrev;
 	this->pDXbox = pDXbox;
 	this->pPhBox = pPhBox;
-	
-	//	ѕока делаем кубик, потом надо сделат какой-нибудь генератор
+
 	vertices =
 	{
-		XMVectorSet(-1.0f, -2.0f, -1.0f, 0.0f),
-		XMVectorSet(1.0f, -2.0f, -1.0f, 0.0f),
-		XMVectorSet(1.0f, 2.0f, -1.0f, 0.0f),
-		XMVectorSet(-1.0f, 2.0f, -1.0f, 0.0f),
-
-		XMVectorSet(-1.0f, -2.0f, 1.0f, 0.0f),
-		XMVectorSet(1.0f, -2.0f, 1.0f, 0.0f),
-		XMVectorSet(1.0f, 2.0f, 1.0f, 0.0f),
-		XMVectorSet(-1.0f, 2.0f, 1.0f, 0.0f),
+		XMVectorSet(0.0f,  -1,  1, 0.0f),
+		XMVectorSet(0.0f,  0.0f, -1, 0.0f),
+		XMVectorSet(-1 ,  0.0f,  1, 0.0f),
+		XMVectorSet(1 ,  0.0f,  1, 0.0f),
 	};
-	
+
 	indices =
 	{
-		0,3,2,
+		1,2,3,
 		0,2,1,
-		1,2,6,
-		1,6,5,
-		5,6,7,
-		5,7,4,
-		4,7,3,
-		4,3,0,
-		3,7,6,
-		3,6,2,
-		4,0,1,
-		4,1,5,
+		0,3,2,
+		0,1,3,
 	};
 
+	acceleration = XMVectorSet(0, 0, 0, 0);
+	speed = XMVectorSet(0, 0, 0, 0);
 	location = XMVectorSet(0, 0, 0, 0);
 	Rotation = XMMatrixRotationX(0);
 	RecalculatePhisicalParams();
-
 	RecalculateImage();
 
 }
@@ -64,10 +51,16 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 	this->indices = indices;
 	this->location = location;
 
-
-	Rotation = XMMatrixRotationX(0);
+	acceleration = XMVectorSet(0, 0, 0, 0);
+	speed = XMVectorSet(0, 0, 0, 0);
+	Rotation = XMMatrixRotationZ(0.0001);
 	RecalculatePhisicalParams();
 	RecalculateImage();
+
+	if(volume < 15)
+		speed = XMVectorSet(-0.3, 0, 0, 0);
+	else
+		speed = XMVectorSet(0.3, 0, 0, 0);
 }
 
 Voxel* Voxel::AddPrev(Voxel* pVoxel)
@@ -81,16 +74,27 @@ Voxel* Voxel::AddPrev(Voxel* pVoxel)
 
 void Voxel::Tick(DWORD dt)
 {
-	
-	/*
-		ћј√»я (физика)
-		ћј√»я (физика)
-		ћј√»я (физика)
-		ћј√»я (физика)
-	*/
-	if(volume < 15)
-		Rotation = XMMatrixMultiply(Rotation, XMMatrixRotationY(dt / 1000.0f));
+	Voxel* pointer = pNext;
+	while (pointer != pPhBox->GetVoxelsQueueEnd())
+	{
+		XMVECTOR colPoint;
+		if (GetCollisionPoint(pointer, &colPoint))
+		{
+			speed = XMVectorSet(0, 0, 0, 0);
+			pointer->speed = XMVectorSet(0, 0, 0, 0);
+		}
+		pointer = pointer->pNext;
+	}
+	//acceleration += XMVectorSet(0, -9.8, 0, 0) ;
 	pDXbox->Draw(this);
+}
+
+
+void Voxel::Move(DWORD dt)
+{
+	speed += acceleration * dt / 1000;
+	location += speed * dt / 1000;
+	acceleration = XMVectorSet(0, 0, 0, 0);
 }
 
 void Voxel::RecalculateImage()
@@ -224,6 +228,79 @@ void Voxel::RecalculatePhisicalParams()
 
 	location += O;
 
+}
+
+
+
+bool Voxel::GetCollisionPoint(Voxel* pTarget, XMVECTOR* pPoint)
+{
+#define VOX_SIGN_FUNC(x, z) (Bt * (Av * (x) + Cv * (z) + Dv) - Bv * (At * (x) + Ct * (z) + Dt))
+#define VOX_CHECK_INTERSECTION(signva, signvb, signta, signtb, p1, p2)	\
+	if(((signva < 0) != (signvb < 0)) && (signta < 0) != (signtb < 0))	\
+	{																	\
+		float kzl = (p2.x - p1.x) / (p2.z - p1.z);						\
+		float kzf = (Bv * Ct - Bt * Cv) / (Bt * Av - Bv * At);			\
+		float kf = (Bv * Dt - Bt * Dv) / (Bt * Av - Bv * At);			\
+		float z = (p1.z * kzl + kf - p1.x) / (kzl - kzf);				\
+		float x = z * kzf + kf;											\
+		float y = -((Av * x + Cv * z + Dv) / Bv);						\
+		*pPoint = XMVectorSet(x, y, z, 0);								\
+		return true;													\
+	}
+
+	XMMATRIX Worldv = GetMatrixWorld();
+
+	std::vector<XMFLOAT3>	vv = std::vector<XMFLOAT3>(vertices.size());
+	for (int i = 0; i < vertices.size(); i++)
+		XMStoreFloat3(&(vv[i]), XMVector3Transform(vertices[i], Worldv));
+
+	XMMATRIX Worldt = pTarget->GetMatrixWorld();
+	std::vector<XMFLOAT3>	vt = std::vector<XMFLOAT3>(pTarget->vertices.size());
+	for (int i = 0; i < pTarget->vertices.size(); i++)
+		XMStoreFloat3(&(vt[i]), XMVector3Transform(pTarget->vertices[i], Worldt));
+
+	for (int iv = 0; iv < indices.size(); iv += 3)
+	{
+
+		XMFLOAT3 pv0 = vv[indices[iv + 0]];
+		XMFLOAT3 pv1 = vv[indices[iv + 1]];
+		XMFLOAT3 pv2 = vv[indices[iv + 2]];
+
+		float Av = (pv1.y - pv0.y) * (pv2.z - pv0.z) - (pv1.z - pv0.z) * (pv2.y - pv0.y);
+		float Bv = (pv1.z - pv0.z) * (pv2.x - pv0.x) - (pv1.x - pv0.x) * (pv2.z - pv0.z);
+		float Cv = (pv1.x - pv0.x) * (pv2.y - pv0.y) - (pv1.y - pv0.y) * (pv2.x - pv0.x);
+		float Dv = - (pv0.x * Av + pv0.y * Bv + pv0.z * Cv);
+
+		for (int it = 0; it < pTarget->indices.size(); it += 3)
+		{
+			XMFLOAT3 pt0 = vt[pTarget->indices[it + 0]];
+			XMFLOAT3 pt1 = vt[pTarget->indices[it + 1]];
+			XMFLOAT3 pt2 = vt[pTarget->indices[it + 2]];
+
+			float At = (pt1.y - pt0.y) * (pt2.z - pt0.z) - (pt1.z - pt0.z) * (pt2.y - pt0.y);
+			float Bt = (pt1.z - pt0.z) * (pt2.x - pt0.x) - (pt1.x - pt0.x) * (pt2.z - pt0.z);
+			float Ct = (pt1.x - pt0.x) * (pt2.y - pt0.y) - (pt1.y - pt0.y) * (pt2.x - pt0.x);
+			float Dt = -(pt0.x * At + pt0.y * Bt + pt0.z * Ct);
+
+			float signv0 = VOX_SIGN_FUNC(pv0.x, pv0.z);
+			float signv1 = VOX_SIGN_FUNC(pv1.x, pv1.z);
+			float signv2 = VOX_SIGN_FUNC(pv2.x, pv2.z);
+			
+			float signt0 = VOX_SIGN_FUNC(pt0.x, pt0.z);
+			float signt1 = VOX_SIGN_FUNC(pt1.x, pt1.z);
+			float signt2 = VOX_SIGN_FUNC(pt2.x, pt2.z);
+
+			VOX_CHECK_INTERSECTION(signv0, signv1, signt0, signt1, pv0, pv1);
+			VOX_CHECK_INTERSECTION(signv0, signv1, signt0, signt2, pv0, pv1);
+			VOX_CHECK_INTERSECTION(signv0, signv2, signt0, signt1, pv0, pv2);
+			VOX_CHECK_INTERSECTION(signv0, signv2, signt0, signt2, pv0, pv2);
+
+		}
+	}
+
+	return false;
+#undef VOX_SIGN_FUNC
+#undef VOX_CHECK_INTERSECTION
 }
 
 Voxel::~Voxel()

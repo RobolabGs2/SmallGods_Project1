@@ -17,7 +17,15 @@ void PhysicalBox::Tick(DWORD dt)
 		pointer->Tick(dt);
 		pointer = pointer->pNext;
 	}
-	
+
+	pointer = pointer->pNext;
+
+	while (pointer != pMainVox)
+	{
+		pointer->Move(dt);
+		pointer = pointer->pNext;
+	}
+
 	pDXbox->Show();
 }
 
@@ -47,15 +55,44 @@ void PhysicalBox::GenerateVoxels(Direct3Dbox* pDXBox)
 		0,1,3,
 	};
 
-	AddObject(new Voxel(NULL, NULL, pDXBox, this));
+	std::vector<XMVECTOR> verticesTARDIS =
+	{
+		XMVectorSet(-1.0f, -2.0f, -1.0f, 0.0f),
+		XMVectorSet(1.0f, -2.0f, -1.0f, 0.0f),
+		XMVectorSet(1.0f, 2.0f, -1.0f, 0.0f),
+		XMVectorSet(-1.0f, 2.0f, -1.0f, 0.0f),
 
-	Voxel* pyramid = new Voxel(NULL, NULL, pDXBox, this, vertices, indices, XMVectorSet(2, 3, 0, 0));
-	//pyramid->Mound(5, 0.2);
-	//float volume = pyramid->CalculateVolume();
-	pyramid->RecalculateImage();
+		XMVectorSet(-1.0f, -2.0f, 1.0f, 0.0f),
+		XMVectorSet(1.0f, -2.0f, 1.0f, 0.0f),
+		XMVectorSet(1.0f, 2.0f, 1.0f, 0.0f),
+		XMVectorSet(-1.0f, 2.0f, 1.0f, 0.0f),
+	};
+
+	std::vector<WORD> indicesTARDIS =
+	{
+		0,3,2,
+		0,2,1,
+		1,2,6,
+		1,6,5,
+		5,6,7,
+		5,7,4,
+		4,7,3,
+		4,3,0,
+		3,7,6,
+		3,6,2,
+		4,0,1,
+		4,1,5,
+	};
+
+	Voxel* pyramid = new Voxel(NULL, NULL, pDXBox, this, vertices, indices, XMVectorSet(3, 0, 0, 0));
+	Voxel* TARDIS = new Voxel(NULL, NULL, pDXBox, this, verticesTARDIS, indicesTARDIS, XMVectorSet(0, 0, 0, 0));
 	AddObject(pyramid);
+	AddObject(TARDIS);
+}
 
-
+Voxel* PhysicalBox::GetVoxelsQueueEnd()
+{
+	return pMainVox;
 }
 
 void PhysicalBox::RemoveVoxel(Voxel* pVoxel)

@@ -21,6 +21,8 @@ private:
 	XMMATRIX				Rotation;		//	Матрица поворота
 	XMVECTOR				location;		//	Координаты расположения объекта
 	float					volume;			//	Объём меша
+	XMVECTOR				speed;			//	Скорость
+	XMVECTOR				acceleration;	//	Усеорние объекта
 	std::vector<Vertex>		img_vertices;	//	Массив вершин
 	std::vector<XMVECTOR>	vertices;		//	Массив вершин
 	std::vector<WORD>		indices;		//	Массив индексов
@@ -37,12 +39,17 @@ public:
 	Voxel* AddPrev(Voxel* pVoxel);
 	//	Один такт просчёта физики
 	virtual  void Tick(DWORD dt);
+	//	Перемещает воксель, меняет скорость и обнуляет ускорение
+	void Move(DWORD dt);
 	//	Пересчитывает массивы для отображения
 	void RecalculateImage();
 	//	Рекурсивно генерирует неровности поверхности
 	void Mound(int depth, float factor);
 	//	Обновляет физические параметры (объём и центр масс)
 	void RecalculatePhisicalParams();
+	//	Если объект пересекается с данным, возвращает true. 
+	//	В pPoint заносит координату точки где-то на границе пересечения 
+	bool GetCollisionPoint(Voxel* pTarget, XMVECTOR* pPoint);
 	//	Деструктор
 	virtual ~ Voxel();
 	// Абсолютные координаты

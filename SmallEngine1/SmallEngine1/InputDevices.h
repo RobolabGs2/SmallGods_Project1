@@ -12,12 +12,13 @@ private:
 	CursorState cursor_state_ = CursorState::Hide;
 public:
 	InputDevices(HWND);
-	~InputDevices();
+	virtual ~InputDevices();
 	void Tick(DWORD);
 	Keyboard<TKeyAction>* GetKeyboard();
 	void SetMouseAction(MouseActionMove);
 	void SetMouseAction(MouseActionScroll);
 	void SetCursorState(CursorState);
+	void ReadMessage(MSG msg);
 };
 
 template <class TKeyAction>
@@ -33,11 +34,13 @@ InputDevices<TKeyAction>::~InputDevices()
 template <class TKeyAction>
 void InputDevices<TKeyAction>::Tick(DWORD dt)
 {
-	if (GetFocus()) {
+	if (GetFocus())
+	{
 		mouse_.Tick(dt);
 		keyboard_.Tick(dt);
 		mouse_.SetCursorState(cursor_state_);
-	} else
+	}
+	else
 		mouse_.SetCursorState(CursorState::Show);
 }
 
@@ -63,4 +66,15 @@ template <class TKeyAction>
 void InputDevices<TKeyAction>::SetCursorState(CursorState cursor_state)
 {
 	cursor_state_ = cursor_state;
+}
+
+template <class TKeyAction>
+void InputDevices<TKeyAction>::ReadMessage(MSG msg)
+{
+	switch (msg.message)
+	{
+	case(WM_MOUSEWHEEL):
+		mouse_.ReadScrollMessage(msg);
+		break;
+	}
 }

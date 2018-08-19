@@ -19,15 +19,18 @@
     <Filter Include="Файлы заголовков\InputDevices">
       <UniqueIdentifier>{71ccc914-36ef-4be3-8781-519b321d446c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Window">
+      <UniqueIdentifier>{c06a3514-eacb-477a-b11a-def730b4f031}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Window">
+      <UniqueIdentifier>{12f4173a-d76a-45fa-944f-5c217ae32231}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="WinAPIInit.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -72,15 +75,21 @@
     <ClInclude Include="Cursor.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="WinAPIInit.h">
+      <Filter>Файлы заголовков\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="IListenerWindow.h">
+      <Filter>Файлы заголовков\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevicesListener.h">
+      <Filter>Файлы заголовков\Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="SmallEngine1.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="WinAPIInit.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="Direct3Dbox.cpp">
@@ -106,6 +115,12 @@
     </ClCompile>
     <ClCompile Include="Mouse.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="InputDevicesListener.cpp">
+      <Filter>Исходные файлы\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="WinAPIInit.cpp">
+      <Filter>Исходные файлы\Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

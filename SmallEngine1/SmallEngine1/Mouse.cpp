@@ -25,16 +25,6 @@ void Mouse::refresh_delta()
 	ClipCursor(&r_window);
 }
 
-void Mouse::refresh_scroll()
-{
-	MSG msg;
-	if (PeekMessage(&msg, NULL, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
-		if (msg.message == WM_MOUSEWHEEL) {
-			scroll_ += (static_cast<short>HIWORD(msg.wParam)) / WHEEL_DELTA;
-			//PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
-		}
-}
-
 Mouse::Mouse(HWND window)
 {
 	this->window = window;
@@ -48,7 +38,6 @@ Mouse::~Mouse()
 
 void Mouse::Tick(DWORD dt)
 {
-	refresh_scroll();
 	if (dt) {
 		refresh_delta();
 		if (bind_action_move)
@@ -72,6 +61,11 @@ void Mouse::SetBindActionScroll(MouseActionScroll action)
 void Mouse::SetCursorState(CursorState state)
 {
 	cursor_.SetState(state);
+}
+
+void Mouse::ReadScrollMessage(MSG msg)
+{
+	scroll_ += (static_cast<short>HIWORD(msg.wParam)) / WHEEL_DELTA;
 }
 
 bool Mouse::GetStatusKey(eMouseKey key)

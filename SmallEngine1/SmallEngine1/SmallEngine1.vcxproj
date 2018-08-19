@@ -159,7 +159,9 @@
     <ClInclude Include="Direct3Dbox.h" />
     <ClInclude Include="eKeyAction.h" />
     <ClInclude Include="eKeyCode.h" />
+    <ClInclude Include="IListenerWindow.h" />
     <ClInclude Include="InputDevices.h" />
+    <ClInclude Include="InputDevicesListener.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Player.h" />
@@ -176,6 +178,7 @@
     <ClCompile Include="CustomVectorMath.cpp" />
     <ClCompile Include="Direct3Dbox.cpp" />
     <ClCompile Include="Direct3Dbox_Functions.cpp" />
+    <ClCompile Include="InputDevicesListener.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Voxel.cpp" />

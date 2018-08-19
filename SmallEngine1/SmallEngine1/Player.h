@@ -1,6 +1,6 @@
 #pragma once
 #include "InputDevices.h"
-enum class eKeyAction;
+#include "eKeyAction.h"
 class Player;
 
 #include "Direct3Dbox.h"
@@ -19,17 +19,5 @@ private:
 public:
 	Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox, InputDevices<eKeyAction>* input_devices);
 	~Player();
-	void Tick(DWORD);
-};
-
-enum class eKeyAction
-{
-	MOVE_LEFT,
-	MOVE_RIGHT,
-	MOVE_FORWARD,
-	MOVE_BACKWARD,
-	TURN_LEFT,
-	TURN_RIGHT,
-	TURN_DOWN,
-	TURN_UP
+	void Tick(DWORD) override;
 };

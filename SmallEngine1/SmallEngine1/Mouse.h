@@ -20,7 +20,6 @@ private:
 	float dx = 0, dy = 0, sensitivity = 0.001f;
 	int scroll_ = 0;
 	void refresh_delta();
-	void refresh_scroll();
 	Cursor cursor_;
 	MouseActionMove bind_action_move = nullptr;
 	MouseActionScroll bind_action_scroll = nullptr;
@@ -33,4 +32,5 @@ public:
 	void SetBindActionMove(MouseActionMove);
 	void SetBindActionScroll(MouseActionScroll);
 	void SetCursorState(CursorState);
+	void ReadScrollMessage(MSG msg);
 };

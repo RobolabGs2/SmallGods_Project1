@@ -43,18 +43,26 @@ HINSTANCE WinAPIInit::GetHInstance()
 {
 	return hInstance;
 }
-//TODO разобраться с костылём. Он мешает работе нескольких окон независимо
+
 bool WinAPIInit::Tick()
 {
 	bool flag = true;
 	if (PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
 	{
-		PostMessage(NULL, msg.message, msg.wParam, msg.lParam);
+		for (IListenerWindow* const listener : listeners_)
+		{
+			listener->process_message(msg);
+		}
 		flag = !(msg.message == WM_SYSCOMMAND && msg.wParam == SC_CLOSE);
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 	return flag;
+}
+
+void WinAPIInit::AddListener(IListenerWindow* listener)
+{
+	listeners_.insert(listener);
 }
 
 WinAPIInit::~WinAPIInit()

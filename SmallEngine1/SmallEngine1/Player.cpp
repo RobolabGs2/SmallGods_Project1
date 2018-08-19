@@ -75,3 +75,7 @@ Player::~Player()
 void Player::Tick(DWORD dt)
 {
 }
+
+void Player::Move(DWORD dt)
+{
+}

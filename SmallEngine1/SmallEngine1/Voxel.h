@@ -18,11 +18,16 @@ private:
 	PhysicalBox*			pPhBox;			//	родительский PhysicalBox
 	Voxel*					pNext;			//	Ссылка на следующий
 	Voxel*					pPrev;			//	Ссылка на предыдущий
-	XMMATRIX				Rotation;		//	Матрица поворота
-	XMVECTOR				location;		//	Координаты расположения объекта
 	float					volume;			//	Объём меша
-	XMVECTOR				speed;			//	Скорость
-	XMVECTOR				acceleration;	//	Усеорние объекта
+
+	XMVECTOR				forceMomentum;	//	Момент силы
+	XMVECTOR				angularMomentum;//	Момент импульса
+	XMMATRIX				Rotation;		//	Матрица поворота
+
+	XMVECTOR				force;			//	Линейная сила
+	XMVECTOR				lineMomentum;	//	Импульс
+	XMVECTOR				location;		//	Координаты расположения
+
 	std::vector<Vertex>		img_vertices;	//	Массив вершин
 	std::vector<XMVECTOR>	vertices;		//	Массив вершин
 	std::vector<WORD>		indices;		//	Массив индексов
@@ -38,9 +43,11 @@ public:
 	//	Добавляет воксель перед данным. Возвращает ссылку на него
 	Voxel* AddPrev(Voxel* pVoxel);
 	//	Один такт просчёта физики
-	virtual  void Tick(DWORD dt);
+	virtual void Tick(DWORD dt);
 	//	Перемещает воксель, меняет скорость и обнуляет ускорение
-	void Move(DWORD dt);
+	virtual void Move(DWORD dt);
+	//	Прникладывает силу к объекту в данной точке
+	void AppForce(XMVECTOR point, XMVECTOR force);
 	//	Пересчитывает массивы для отображения
 	void RecalculateImage();
 	//	Рекурсивно генерирует неровности поверхности
@@ -58,11 +65,16 @@ public:
 	XMMATRIX GetRotation();
 	//	Возвращает координату 
 	XMVECTOR GetLocation();
+	//	Возвращает еденичный вектор, указывающий условное направление вокселя
 	XMVECTOR GetVectorCourse();
+	//	Считает массу вокселя
+	float GetMass();
+	//	Изменяет location на addVector
 	void EditLocation(XMVECTOR addVector);
+	//	Изменяет Rotation на addRotation
+	void EditRotation(XMMATRIX addRotation);
 	void EditLocationXZ(XMVECTOR addVector);
 	void EditLocationY(XMVECTOR addVector);
-	void EditRotation(XMMATRIX addRotation);
 	//	Друзья))
 	friend class Direct3Dbox;
 	friend class PhysicalBox;

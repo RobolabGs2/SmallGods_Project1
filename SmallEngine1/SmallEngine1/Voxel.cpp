@@ -31,6 +31,9 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 		0,1,3,
 	};
 
+
+	movable = true;
+
 	force = XMVectorSet(0, 0, 0, 0);
 	lineMomentum = XMVectorSet(0, 0, 0, 0);
 	location = XMVectorSet(0, 0, 0, 0);
@@ -63,6 +66,8 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 	angularMomentum = XMVectorSet(0, 0, 0, 0);
 	Rotation = XMMatrixRotationZ(0.0001);
 
+	movable = true;
+
 	RecalculatePhisicalParams();
 	RecalculateImage();
 
@@ -86,31 +91,38 @@ void Voxel::Tick(DWORD dt)
 	Voxel* pointer = pNext;
 	while (pointer != pPhBox->GetVoxelsQueueEnd())
 	{
+		
 		XMVECTOR colPoint;
 		if (GetCollisionPoint(pointer, &colPoint))
 		{
- 			XMVECTOR delForce = XMVector3Normalize(lineMomentum - pointer->lineMomentum) ;
-			AppForce(colPoint, -delForce);
-			pointer->AppForce(colPoint, delForce);
+ 			//XMVECTOR delForce = -XMVector3Normalize(lineMomentum - pointer->lineMomentum) ;
+			//AppForce(colPoint, delForce );
+			//pointer->AppForce(colPoint, -delForce);
+			//location = colPoint;
 		}
 		pointer = pointer->pNext;
 	}
-	//acceleration += XMVectorSet(0, -9.8, 0, 0) ;
+
 	pDXbox->Draw(this);
 }
 
 
 void Voxel::Move(DWORD dt)
 {
-	if (dt == 0)
+	if (!movable)
+	{
+		force = XMVectorSet(0, 0, 0, 0);
+		forceMomentum = XMVectorSet(0, 0, 0, 0);
 		return;
-	lineMomentum += force * dt / 1000;
-	location += lineMomentum * dt / 1000 / GetMass();
+	}
+
+	lineMomentum += force * dt / 1000.0f;
+	location += lineMomentum * dt / 1000.0f / GetMass();
 	force = XMVectorSet(0, 0, 0, 0);
 
-	angularMomentum += forceMomentum * dt / 1000;
+	angularMomentum += forceMomentum * dt / 1000.0f;
 	if(CVMAbs(angularMomentum) > 0)
-		EditRotation(XMMatrixRotationAxis(angularMomentum, CVMAbs(angularMomentum) * dt / 1000));
+		EditRotation(XMMatrixRotationAxis(angularMomentum, CVMAbs(angularMomentum) * dt / 1000.0f));
 	forceMomentum = XMVectorSet(0, 0, 0, 0);
 }
 
@@ -119,10 +131,10 @@ void Voxel::AppForce(XMVECTOR point, XMVECTOR addForce)
 	XMVECTOR lineVector = location - point;
 	XMVECTOR lineForce = XMVector3Normalize(lineVector)* CVMAbs(addForce) * CVMCosAngle(addForce, lineVector);
 	XMVECTOR angularForce = addForce - lineForce;
-	XMVECTOR momentumForce = XMVector3Normalize(XMVector3Cross(angularForce, lineForce)) * CVMAbs(angularForce);
+	XMVECTOR momentumForce = XMVector3Normalize(XMVector3Cross(lineForce, angularForce)) * CVMAbs(angularForce);
 
-	force += lineForce;
-	forceMomentum += momentumForce;
+	force += lineForce * 1000;
+	forceMomentum += momentumForce  ;
 }
 
 void Voxel::RecalculateImage()
@@ -339,6 +351,13 @@ float Voxel::GetMass()
 
 Voxel::~Voxel()
 {
+}
+
+
+Voxel* Voxel::SetMovable(bool newValue)
+{
+	movable = newValue;
+	return this;
 }
 
 XMMATRIX Voxel::GetMatrixWorld()

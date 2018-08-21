@@ -5,8 +5,9 @@
 Player::Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox,
                InputDevices<eKeyAction>* input): Voxel(pNext, pPrev, pDXbox, pPhBox)
 {
-	EditLocation(XMVectorSet(0, 0, -11, 0));
-	EditRotation(XMMatrixRotationY(-3.14159265358979 / 2));
+	EditLocation(XMVectorSet(0, 5, -11, 0));
+	EditRotation(XMMatrixRotationY(-3.14159265358979 / 2.2));
+	EditRotation(XMMatrixRotationX(3.14159265358979 / 4));
 	std::map<eKeyAction, eKeyCodes> binds = {
 		{eKeyAction::MOVE_LEFT, eKeyCodes::KEY_A},
 		{eKeyAction::MOVE_RIGHT, eKeyCodes::KEY_D},

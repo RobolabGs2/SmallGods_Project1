@@ -18,6 +18,8 @@ private:
 	PhysicalBox*			pPhBox;			//	родительский PhysicalBox
 	Voxel*					pNext;			//	Ссылка на следующий
 	Voxel*					pPrev;			//	Ссылка на предыдущий
+
+	bool					movable;		//	Возможность перемещения
 	float					volume;			//	Объём меша
 
 	XMVECTOR				forceMomentum;	//	Момент силы
@@ -35,7 +37,7 @@ public:
 
 	//	Конструктор по умолчанию, создаёт пустой объект со ссылкой на самого себя
 	Voxel();
-	//	Конструктор с дефолтным мешем(тардис) 
+	//	Конструктор с дефолтным мешем(пирамидка) 
 	Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox);
 	//	Конструктор с задаваемым мешем	 
 	Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox,
@@ -69,6 +71,8 @@ public:
 	XMVECTOR GetVectorCourse();
 	//	Считает массу вокселя
 	float GetMass();
+	//	Задаёт возможность физического перемещения, возващает ссылку на сам воксель
+	Voxel* SetMovable(bool newValue);
 	//	Изменяет location на addVector
 	void EditLocation(XMVECTOR addVector);
 	//	Изменяет Rotation на addRotation

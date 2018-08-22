@@ -18,9 +18,18 @@ private:
 	PhysicalBox*			pPhBox;			//	родительский PhysicalBox
 	Voxel*					pNext;			//	Ссылка на следующий
 	Voxel*					pPrev;			//	Ссылка на предыдущий
-	XMMATRIX				Rotation;		//	Матрица поворота
-	XMVECTOR				location;		//	Координаты расположения объекта
+
+	bool					movable;		//	Возможность перемещения
 	float					volume;			//	Объём меша
+
+	XMVECTOR				forceMomentum;	//	Момент силы
+	XMVECTOR				angularMomentum;//	Момент импульса
+	XMMATRIX				Rotation;		//	Матрица поворота
+
+	XMVECTOR				force;			//	Линейная сила
+	XMVECTOR				lineMomentum;	//	Импульс
+	XMVECTOR				location;		//	Координаты расположения
+
 	std::vector<Vertex>		img_vertices;	//	Массив вершин
 	std::vector<XMVECTOR>	vertices;		//	Массив вершин
 	std::vector<WORD>		indices;		//	Массив индексов
@@ -28,7 +37,7 @@ public:
 
 	//	Конструктор по умолчанию, создаёт пустой объект со ссылкой на самого себя
 	Voxel();
-	//	Конструктор с дефолтным мешем(тардис) 
+	//	Конструктор с дефолтным мешем(пирамидка) 
 	Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox);
 	//	Конструктор с задаваемым мешем	 
 	Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox,
@@ -36,13 +45,20 @@ public:
 	//	Добавляет воксель перед данным. Возвращает ссылку на него
 	Voxel* AddPrev(Voxel* pVoxel);
 	//	Один такт просчёта физики
-	virtual  void Tick(DWORD dt);
+	virtual void Tick(DWORD dt);
+	//	Перемещает воксель, меняет скорость и обнуляет ускорение
+	virtual void Move(DWORD dt);
+	//	Прникладывает силу к объекту в данной точке
+	void AppForce(XMVECTOR point, XMVECTOR force);
 	//	Пересчитывает массивы для отображения
 	void RecalculateImage();
 	//	Рекурсивно генерирует неровности поверхности
 	void Mound(int depth, float factor);
 	//	Обновляет физические параметры (объём и центр масс)
 	void RecalculatePhisicalParams();
+	//	Если объект пересекается с данным, возвращает true. 
+	//	В pPoint заносит координату точки где-то на границе пересечения 
+	bool GetCollisionPoint(Voxel* pTarget, XMVECTOR* pPoint);
 	//	Деструктор
 	virtual ~ Voxel();
 	// Абсолютные координаты
@@ -51,11 +67,18 @@ public:
 	XMMATRIX GetRotation();
 	//	Возвращает координату 
 	XMVECTOR GetLocation();
+	//	Возвращает еденичный вектор, указывающий условное направление вокселя
 	XMVECTOR GetVectorCourse();
+	//	Считает массу вокселя
+	float GetMass();
+	//	Задаёт возможность физического перемещения, возващает ссылку на сам воксель
+	Voxel* SetMovable(bool newValue);
+	//	Изменяет location на addVector
 	void EditLocation(XMVECTOR addVector);
+	//	Изменяет Rotation на addRotation
+	void EditRotation(XMMATRIX addRotation);
 	void EditLocationXZ(XMVECTOR addVector);
 	void EditLocationY(XMVECTOR addVector);
-	void EditRotation(XMMATRIX addRotation);
 	//	Друзья))
 	friend class Direct3Dbox;
 	friend class PhysicalBox;

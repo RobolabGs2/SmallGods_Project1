@@ -22,6 +22,8 @@ public:
 	//	Метод, который должен был называться GenerateWorld, но Слава сказал, что
 	//	вдруг у нас будет объект World, тогда получится путаница, так что вот.
 	void GenerateVoxels(Direct3Dbox* pDXBox);
+	//	Возвращает указатель на воксель - стопор
+	Voxel* GetVoxelsQueueEnd();
 	//  Добавляет объект на сцену
 	void AddObject(Voxel*);
 	//	Деструктор

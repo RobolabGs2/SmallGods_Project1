@@ -20,4 +20,5 @@ public:
 	Player(Voxel* pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhBox, InputDevices<eKeyAction>* input_devices);
 	~Player();
 	void Tick(DWORD) override;
+	void Move(DWORD dt);
 };

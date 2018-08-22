@@ -12,6 +12,7 @@ struct ConstantBuffer;
 #include "WinAPIInit.h"
 #include "Voxel.h"
 #include "Camera.h"
+#include "DirectDevicesBox.h"
 #include <comdef.h>
 #include <vector>
 
@@ -43,12 +44,8 @@ struct ConstantBuffer
 class Direct3Dbox
 {
 private:
-	D3D_DRIVER_TYPE         driverType = D3D_DRIVER_TYPE_NULL;
-	D3D_FEATURE_LEVEL       featureLevel = D3D_FEATURE_LEVEL_11_0;
-	
-	ID3D11Device*           pd3dDevice;				//	Устройство Direct3D
-	ID3D11DeviceContext*    pImmediateContext;		//	Контекст устройство
-	IDXGISwapChain*         pSwapChain;				//	Цепь связи
+	DirectDevicesBox*		pDevicesBox;			//	Коробочка с девайсами
+
 	ID3D11RenderTargetView* pRenderTargetView;		//	Поверхность рисования заднего буфера
 	ID3D11Texture2D*        pDepthStencil;			//	Текстура буфера глубин
 	WinAPIInit*				pWinInit;				//	Объект она для вывода
@@ -59,8 +56,6 @@ private:
 	ID3D11Buffer*           pConstantBuffer;		//	Константный буфер
 	ConstantBuffer			cb;
 	Camera*					camera;
-	//	Бросает исключение если hr не S_OK
-	void Exp(HRESULT hr);
 	//	Преобразует тип шейдера в строковое представление
 	LPCSTR ShaderTypeToLPCSTR(PixelShaderType stype);
 	//	Компилирует соответствующий шейдер

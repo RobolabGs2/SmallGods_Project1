@@ -4,11 +4,11 @@
 
 void Direct3Dbox::Show()
 {
-	HRESULT hr =  pSwapChain->Present(0, 0);
+	HRESULT hr = pDevicesBox->GetSwapChain()->Present(0, 0);
 
 	float ClearColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
-	pImmediateContext->ClearRenderTargetView(pRenderTargetView, ClearColor);
-	pImmediateContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	pDevicesBox->GetDeviceContext()->ClearRenderTargetView(pRenderTargetView, ClearColor);
+	pDevicesBox->GetDeviceContext()->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void Direct3Dbox::Draw(Voxel* pVoxel)
@@ -22,7 +22,7 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 	//cb.vOutputColor = { 0.02f, 0.22f, 0.44f, 1.0f };
 	cb.vOutputColor = { 0.2f, 0.5f, 0.0f, 1.0f };
 
-	pImmediateContext->UpdateSubresource(pConstantBuffer, 0, NULL, &cb, 0, 0);
+	pDevicesBox->GetDeviceContext()->UpdateSubresource(pConstantBuffer, 0, NULL, &cb, 0, 0);
 
 
 	D3D11_BUFFER_DESC bd;										// Структура, описывающая создаваемый буфер
@@ -40,36 +40,28 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 
 	// Вызов метода pd3dDevice создаст объект буфера вершин ID3D11Buffer
 	ID3D11Buffer* pVertexBuffer = NULL;
-	hr = pd3dDevice->CreateBuffer(&bd, &InitData, &pVertexBuffer);
-	Exp(hr);
+	hr = pDevicesBox->GetDevice()->CreateBuffer(&bd, &InitData, &pVertexBuffer);
+	CheckAndThrowIfFailed(hr);
 
 
 	// Установка буфера вершин:
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	pImmediateContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
+	pDevicesBox->GetDeviceContext()->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
 
 
 	//	Устанавливаем шейдеры и константные буферы
-	pImmediateContext->VSSetShader(pVertexShader, NULL, 0);
-	pImmediateContext->VSSetConstantBuffers(0, 1, &pConstantBuffer);
-	pImmediateContext->PSSetShader(pPixelShader[0 /* Тут по идеи должен меняться номер*/], NULL, 0);
-	pImmediateContext->PSSetConstantBuffers(0, 1, &pConstantBuffer);
+	pDevicesBox->GetDeviceContext()->VSSetShader(pVertexShader, NULL, 0);
+	pDevicesBox->GetDeviceContext()->VSSetConstantBuffers(0, 1, &pConstantBuffer);
+	pDevicesBox->GetDeviceContext()->PSSetShader(pPixelShader[0 /* Тут по идеи должен меняться номер*/], NULL, 0);
+	pDevicesBox->GetDeviceContext()->PSSetConstantBuffers(0, 1, &pConstantBuffer);
 
 	//pImmediateContext->DrawIndexed(pVoxel->img_indices.size(), 0, 0);
-	pImmediateContext->Draw(pVoxel->img_vertices.size(), 0);
+	pDevicesBox->GetDeviceContext()->Draw(pVoxel->img_vertices.size(), 0);
 
 	pVertexBuffer->Release();
 
 }
-
-
-void Direct3Dbox::Exp(HRESULT hr)
-{
-	if (FAILED(hr))
-		throw new _com_error(hr);
-}
-
 
 HRESULT Direct3Dbox::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
 {
@@ -102,7 +94,7 @@ LPCSTR Direct3Dbox::ShaderTypeToLPCSTR(PixelShaderType stype)
 	case SHT_LIGHT:
 		return "PS_LIGHT";
 	default:
-		Exp(E_INVALIDARG);
+		CheckAndThrowIfFailed(E_INVALIDARG);
 		return "";
 	}
 }

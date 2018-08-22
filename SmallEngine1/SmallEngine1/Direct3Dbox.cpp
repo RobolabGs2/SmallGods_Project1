@@ -14,26 +14,6 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera
 	UINT height = rc.bottom - rc.top;
 	UINT createDeviceFlags = 0;
 
-	D3D_DRIVER_TYPE driverTypes[] =
-	{
-		D3D_DRIVER_TYPE_HARDWARE,
-		D3D_DRIVER_TYPE_WARP,
-		D3D_DRIVER_TYPE_REFERENCE ,
-	};
-
-	UINT numDriverTypes = ARRAYSIZE(driverTypes);
-
-
-	//	Cписок поддерживаемых версий DirectX
-	D3D_FEATURE_LEVEL featureLevels[] =
-	{
-		D3D_FEATURE_LEVEL_11_0,
-		D3D_FEATURE_LEVEL_10_1,
-		D3D_FEATURE_LEVEL_10_0,
-	};
-	UINT numFeatureLevels = ARRAYSIZE(featureLevels);
-
-
 	//	Дескриптор Swap Chain
 	DXGI_SWAP_CHAIN_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
@@ -49,25 +29,18 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera
 	sd.SampleDesc.Quality = 0;							//	Уровень качества изображения (Не совсем ясно зачем его обнулять, но здесь так принято)
 	sd.Windowed = TRUE;									//	не полноэкранный режим
 
-	for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
-	{
-		driverType = driverTypes[driverTypeIndex];
-		hr = D3D11CreateDeviceAndSwapChain(NULL, driverType, NULL, createDeviceFlags, featureLevels, numFeatureLevels,
-			D3D11_SDK_VERSION, &sd, &pSwapChain, &pd3dDevice, &featureLevel, &pImmediateContext);
+	pDevicesBox = new DirectDevicesBox(&sd, createDeviceFlags, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		if (SUCCEEDED(hr))	// Если устройства созданы успешно, то выходим из цикла
-			break;
-	}
-	Exp(hr);
+	CheckAndThrowIfFailed(hr);
 	
 	//	Задний буфер, нужен не долго и только для получения TargetView
 	ID3D11Texture2D* pBackBuffer = NULL;
-	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
-	Exp(hr);
+	hr = pDevicesBox->GetSwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+	CheckAndThrowIfFailed(hr);
 
-	hr = pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &pRenderTargetView);
+	hr = pDevicesBox->GetDevice()->CreateRenderTargetView(pBackBuffer, NULL, &pRenderTargetView);
 	pBackBuffer->Release();
-	Exp(hr);
+	CheckAndThrowIfFailed(hr);
 
 
 	//	Дескриптор буфера глубин (а ещё она текстура)
@@ -85,8 +58,8 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera
 	descDepth.CPUAccessFlags = 0;						//	Доступ к CPU не нужен, поэтому 0
 	descDepth.MiscFlags = 0;							//	Тут всякие дополнительные штуки, мы такие не используем
 
-	hr = pd3dDevice->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
-	Exp(hr);
+	hr = pDevicesBox->GetDevice()->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
+	CheckAndThrowIfFailed(hr);
 
 
 	// Буфер глубины
@@ -96,31 +69,20 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 
-	hr = pd3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &pDepthStencilView);
-	Exp(hr);
+	hr = pDevicesBox->GetDevice()->CreateDepthStencilView(pDepthStencil, &descDSV, &pDepthStencilView);
+	CheckAndThrowIfFailed(hr);
 
-	pImmediateContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
-
-	// Настройка вьюпорта
-	D3D11_VIEWPORT vp;
-	vp.Width = (FLOAT)width;
-	vp.Height = (FLOAT)height;
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-	vp.TopLeftX = 0;
-	vp.TopLeftY = 0;
-	// Подключаем вьюпорт к контексту устройства
-	pImmediateContext->RSSetViewports(1, &vp);
+	pDevicesBox->GetDeviceContext()->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
 
 	// Компиляция вершинного шейдера из файла
 	ID3DBlob* pVSBlob = NULL; // Вспомогательный объект - просто место в оперативной памяти
 	hr = CompileShaderFromFile(szFileName, "VS", "vs_4_0", &pVSBlob);
 
-	Exp(hr);
+	CheckAndThrowIfFailed(hr);
 
 	// Создание вершинного шейдера
-	hr = pd3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &pVertexShader);
-	Exp(hr);
+	hr = pDevicesBox->GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &pVertexShader);
+	CheckAndThrowIfFailed(hr);
 
 	// Определение шаблона вершин
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -133,13 +95,13 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera
 	UINT numElements = ARRAYSIZE(layout);
 
 	// Создание шаблона вершин
-	hr = pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
+	hr = pDevicesBox->GetDevice()->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
 		pVSBlob->GetBufferSize(), &pVertexLayout);
 	pVSBlob->Release();
-	Exp(hr);
+	CheckAndThrowIfFailed(hr);
 
 	// Подключение шаблона вершин
-	pImmediateContext->IASetInputLayout(pVertexLayout);
+	pDevicesBox->GetDeviceContext()->IASetInputLayout(pVertexLayout);
 
 	pPixelShader = new ID3D11PixelShader*[PixelShaderTypeLength];
 	for (int i = 0; i < PixelShaderTypeLength; i++)
@@ -148,12 +110,12 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera
 		ID3DBlob* pPSBlob = NULL;
 		hr = CompileShaderFromFile(szFileName, ShaderTypeToLPCSTR((PixelShaderType)i), "ps_4_0", &pPSBlob);
 
-		Exp(hr);
+		CheckAndThrowIfFailed(hr);
 
 		// Создание пиксельного шейдера
-		hr = pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &(pPixelShader[i]));
+		hr = pDevicesBox->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &(pPixelShader[i]));
 		pPSBlob->Release();
-		Exp(hr);
+		CheckAndThrowIfFailed(hr);
 	}
 
 	D3D11_BUFFER_DESC bd;  // Структура, описывающая создаваемый буфер
@@ -163,28 +125,21 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera
 	bd.ByteWidth = sizeof(ConstantBuffer);			//	размер буфера = размеру структуры
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;		//	тип - константный буфер
 	bd.CPUAccessFlags = 0;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &pConstantBuffer);
-	Exp(hr);
+	hr = pDevicesBox->GetDevice()->CreateBuffer(&bd, NULL, &pConstantBuffer);
+	CheckAndThrowIfFailed(hr);
 
 	this->camera = camera;
 	cb.sunPosition = XMFLOAT3(0.5, 1, -0.5);
 
 	XMMATRIX Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
 	cb.mProjection = XMMatrixTranspose(Projection);
-
-	// Установка способа отрисовки вершин в буфере
-	pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 }
 
 Direct3Dbox::~Direct3Dbox()
 {
-	if (pImmediateContext) pImmediateContext->ClearState();
+	pDevicesBox->~DirectDevicesBox();
 
 	if (pDepthStencilView) pDepthStencilView->Release();
 	if (pDepthStencil) pDepthStencil->Release();
 	if (pRenderTargetView) pRenderTargetView->Release();
-	if (pSwapChain) pSwapChain->Release();
-	if (pImmediateContext) pImmediateContext->Release();
-	if (pd3dDevice) pd3dDevice->Release();
 }

@@ -84,6 +84,9 @@
     <ClInclude Include="InputDevicesListener.h">
       <Filter>Файлы заголовков\Window</Filter>
     </ClInclude>
+    <ClInclude Include="DirectDevicesBox.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -91,9 +94,6 @@
     </ClCompile>
     <ClCompile Include="SmallEngine1.cpp">
       <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3Dbox.cpp">
-      <Filter>Исходные файлы\Direct3Dbox</Filter>
     </ClCompile>
     <ClCompile Include="Direct3Dbox_Functions.cpp">
       <Filter>Исходные файлы\Direct3Dbox</Filter>
@@ -121,6 +121,12 @@
     </ClCompile>
     <ClCompile Include="WinAPIInit.cpp">
       <Filter>Исходные файлы\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3Dbox.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectDevicesBox.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

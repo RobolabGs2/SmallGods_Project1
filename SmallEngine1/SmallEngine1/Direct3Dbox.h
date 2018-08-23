@@ -8,13 +8,11 @@ struct ConstantBuffer;
 #include <d3d11.h>
 #include <windows.h>
 #include <DirectXMath.h>
-#include <d3dcompiler.h>
+#include <vector>
 #include "WinAPIInit.h"
 #include "Voxel.h"
 #include "Camera.h"
 #include "DirectDevicesBox.h"
-#include <comdef.h>
-#include <vector>
 
 
 using namespace DirectX;
@@ -58,13 +56,13 @@ private:
 	Camera*					camera;
 	//	Преобразует тип шейдера в строковое представление
 	LPCSTR ShaderTypeToLPCSTR(PixelShaderType stype);
-	//	Компилирует соответствующий шейдер
-	HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 public:
 	//	Конструктор
-	Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera*);
+	Direct3Dbox(WinAPIInit* pWinInit, WCHAR* ShadersFileName, Camera*);
 	//	Рисует объект на задний буфер
 	void Draw(Voxel* pVoxel);
+	//	Возвращает указатель на DirectDevicesBox
+	DirectDevicesBox* GetDevicesBox();
 	//	Отрисовывает и очищает задний буфер и буфер глубины
 	void Show();
 	//	Деструктор	

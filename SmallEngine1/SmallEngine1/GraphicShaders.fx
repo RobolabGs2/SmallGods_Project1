@@ -38,8 +38,8 @@ PS_INPUT VS(VS_INPUT input)
 
 float4 PS_BASE(PS_INPUT input) : SV_Target
 {
-	float4 Illumination = saturate(dot(SunPosition, input.Norm));
-
+	float4 Illumination = saturate((dot(SunPosition, input.Norm) + float4(0.8f , 0.8f ,0.99f , 0) ) / float4(1.8f ,1.8f ,1.99f ,1));
+	
 	return vOutputColor * Illumination;
 }
 

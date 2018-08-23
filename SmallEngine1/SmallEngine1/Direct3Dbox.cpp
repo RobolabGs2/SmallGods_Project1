@@ -76,7 +76,7 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera
 
 	// Компиляция вершинного шейдера из файла
 	ID3DBlob* pVSBlob = NULL; // Вспомогательный объект - просто место в оперативной памяти
-	hr = CompileShaderFromFile(szFileName, "VS", "vs_4_0", &pVSBlob);
+	hr = pDevicesBox->CompileShaderFromFile(szFileName, "VS", "vs_4_0", &pVSBlob);
 
 	CheckAndThrowIfFailed(hr);
 
@@ -108,7 +108,7 @@ Direct3Dbox::Direct3Dbox(WinAPIInit* pWinInit, WCHAR* szFileName, Camera* camera
 	{
 		// Компиляция пиксельного шейдера из файла
 		ID3DBlob* pPSBlob = NULL;
-		hr = CompileShaderFromFile(szFileName, ShaderTypeToLPCSTR((PixelShaderType)i), "ps_4_0", &pPSBlob);
+		hr = pDevicesBox->CompileShaderFromFile(szFileName, ShaderTypeToLPCSTR((PixelShaderType)i), "ps_5_0", &pPSBlob);
 
 		CheckAndThrowIfFailed(hr);
 

@@ -25,7 +25,10 @@ private:
 	ID3D11Device*           pd3dDevice;				//	Устройство Direct3D
 	ID3D11DeviceContext*    pImmediateContext;		//	Контекст устройство
 	IDXGISwapChain*         pSwapChain;				//	Цепь связи
+
 public:
+	//	Компилирует соответствующий шейдер
+	HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 	//	Конструктор
 	DirectDevicesBox(DXGI_SWAP_CHAIN_DESC* SwapChainDesc, UINT createDeviceFlags,
 		D3D11_PRIMITIVE_TOPOLOGY Topology);

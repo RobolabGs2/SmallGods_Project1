@@ -54,6 +54,26 @@ DirectDevicesBox::DirectDevicesBox(DXGI_SWAP_CHAIN_DESC* SwapChainDesc, UINT cre
 	pImmediateContext->IASetPrimitiveTopology(Topology);
 }
 
+HRESULT DirectDevicesBox::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
+{
+
+	HRESULT hr = S_OK;
+	ID3DBlob* pErrorBlob = NULL;
+	hr = D3DCompileFromFile(szFileName, NULL, NULL, szEntryPoint, szShaderModel,
+		0, 0, ppBlobOut, NULL);
+
+	if (FAILED(hr))
+	{
+		if (pErrorBlob != NULL)
+			OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
+		if (pErrorBlob) pErrorBlob->Release();
+		MessageBox(NULL, szFileName, L"Ошибка. Не найден файл.", MB_OK);
+		return hr;
+	}
+	if (pErrorBlob) pErrorBlob->Release();
+
+	return S_OK;
+}
 
 ID3D11Device* DirectDevicesBox::GetDevice()
 {

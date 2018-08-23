@@ -1,10 +1,22 @@
 #include "stdafx.h"
 #include "PhysicalBox.h"
 
-PhysicalBox::PhysicalBox(Direct3Dbox* pDXbox)
+PhysicalBox::PhysicalBox(Direct3Dbox* pDXbox, WCHAR* ShadersFileName)
 {
 	this->pDXbox = pDXbox;
+	this->pDevicesBox = pDXbox->GetDevicesBox();
 	pMainVox = new Voxel();
+
+	HRESULT hr = S_OK;
+
+	// Компиляция шейдера из файла
+	ID3DBlob* pVSBlob = NULL; // Вспомогательный объект - просто место в оперативной памяти
+	//hr = pDevicesBox->CompileShaderFromFile(ShadersFileName, "CS_test", "cs_5_0", &pVSBlob);
+	CheckAndThrowIfFailed(hr);
+
+	// Создание шейдера
+	//hr = pDevicesBox->GetDevice()->CreateComputeShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &pPhysicalParamsShader);
+	CheckAndThrowIfFailed(hr);
 }
 
 
@@ -86,6 +98,10 @@ void PhysicalBox::GenerateVoxels(Direct3Dbox* pDXBox)
 
 	Voxel* pyramid = new Voxel(NULL, NULL, pDXBox, this, vertices, indices, XMVectorSet(3, 0, 0, 0));
 	Voxel* TARDIS = (new Voxel(NULL, NULL, pDXBox, this, verticesTARDIS, indicesTARDIS, XMVectorSet(-5, 0, 0, 0)))->SetMovable(false);
+	
+	TARDIS->Mound(2, 0.1);
+	TARDIS->RecalculateImage();
+	TARDIS->RecalculatePhisicalParams();
 	AddObject(pyramid);
 	AddObject(TARDIS);
 }

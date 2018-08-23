@@ -20,7 +20,8 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 	cb.mView = XMMatrixTranspose(camera->GetView());
 	cb.mWorld = XMMatrixTranspose(World);
 	//cb.vOutputColor = { 0.02f, 0.22f, 0.44f, 1.0f };
-	cb.vOutputColor = { 0.2f, 0.5f, 0.0f, 1.0f };
+	//cb.vOutputColor = { 0.2f, 0.5f, 0.0f, 1.0f };
+	cb.vOutputColor = { 1, 1, 1, 1.0f };
 
 	pDevicesBox->GetDeviceContext()->UpdateSubresource(pConstantBuffer, 0, NULL, &cb, 0, 0);
 
@@ -63,25 +64,10 @@ void Direct3Dbox::Draw(Voxel* pVoxel)
 
 }
 
-HRESULT Direct3Dbox::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
+
+DirectDevicesBox* Direct3Dbox::GetDevicesBox()
 {
-	HRESULT hr = S_OK;
-	ID3DBlob* pErrorBlob = NULL;
-	hr = D3DCompileFromFile(szFileName, NULL, NULL, szEntryPoint, szShaderModel,
-		0, 0, ppBlobOut, NULL);
-
-
-	if (FAILED(hr))
-	{
-		if (pErrorBlob != NULL)
-			OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
-		if (pErrorBlob) pErrorBlob->Release();
-		MessageBox(NULL, szFileName, L"Ошибка. Не найден файл.", MB_OK);
-		return hr;
-	}
-	if (pErrorBlob) pErrorBlob->Release();
-
-	return S_OK;
+	return pDevicesBox;
 }
 
 

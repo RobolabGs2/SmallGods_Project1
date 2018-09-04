@@ -122,11 +122,11 @@
     <ClCompile Include="WinAPIInit.cpp">
       <Filter>Исходные файлы\Window</Filter>
     </ClCompile>
-    <ClCompile Include="Direct3Dbox.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="DirectDevicesBox.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3Dbox.cpp">
+      <Filter>Исходные файлы\Direct3Dbox</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

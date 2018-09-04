@@ -9,13 +9,14 @@ PhysicalBox::PhysicalBox(Direct3Dbox* pDXbox, WCHAR* ShadersFileName)
 
 	HRESULT hr = S_OK;
 
+
 	// Компиляция шейдера из файла
 	ID3DBlob* pVSBlob = NULL; // Вспомогательный объект - просто место в оперативной памяти
-	//hr = pDevicesBox->CompileShaderFromFile(ShadersFileName, "CS_test", "cs_5_0", &pVSBlob);
+	hr = pDevicesBox->CompileShaderFromFile(ShadersFileName, "CS_test", "cs_5_0", &pVSBlob);
 	CheckAndThrowIfFailed(hr);
 
 	// Создание шейдера
-	//hr = pDevicesBox->GetDevice()->CreateComputeShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &pPhysicalParamsShader);
+	hr = pDevicesBox->GetDevice()->CreateComputeShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &pPhysicalParamsShader);
 	CheckAndThrowIfFailed(hr);
 }
 
@@ -39,6 +40,59 @@ void PhysicalBox::Tick(DWORD dt)
 	}
 
 	pDXbox->Show();
+}
+
+
+void PhysicalBox::RunShader()
+{
+
+	HRESULT hr = S_OK;
+
+	//	тестовый массивчик в качестве входных данных
+	UINT myData[] = { 1, 0, 0, 0, 0, 0 };
+
+	//	дескриптор UnorderedAccessView
+	D3D11_UNORDERED_ACCESS_VIEW_DESC descUAV;
+	ZeroMemory(&descUAV, sizeof(descUAV));
+	descUAV.Format = DXGI_FORMAT_UNKNOWN;
+	descUAV.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	descUAV.Buffer.NumElements = ARRAYSIZE(myData);
+
+	//	дескриптор буфера, который будет хранить тот массивчик
+	D3D11_BUFFER_DESC descB;
+	ZeroMemory(&descB, sizeof(descB));
+	descB.Usage = D3D11_USAGE_DEFAULT;
+	descB.ByteWidth = ARRAYSIZE(myData) * sizeof(UINT);
+	descB.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+	descB.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	descB.StructureByteStride = sizeof(UINT);
+	descB.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+	// Структура, содержащая данные буфера
+	D3D11_SUBRESOURCE_DATA InitData;
+	ZeroMemory(&InitData, sizeof(InitData));
+	InitData.pSysMem = myData;
+
+	//	Собственно буфер
+	ID3D11Buffer*  pBuffer;
+	pDevicesBox->GetDevice()->CreateBuffer(&descB, &InitData, &pBuffer);
+
+	//	UnorderedAccessView
+	ID3D11UnorderedAccessView* pUAView;
+	hr = pDevicesBox->GetDevice()->CreateUnorderedAccessView(pBuffer, &descUAV, &pUAView);
+	CheckAndThrowIfFailed(hr);
+
+
+	pDevicesBox->GetDeviceContext()->CSSetShader(pPhysicalParamsShader, NULL, 0);
+
+	pDevicesBox->GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, &pUAView, NULL);
+
+	pDevicesBox->GetDeviceContext()->Dispatch(1, 1, 1);
+
+	D3D11_MAPPED_SUBRESOURCE MappedResource;
+	pDevicesBox->GetDeviceContext()->Map(pBuffer, 0, D3D11_MAP_READ, 0, &MappedResource);
+
+	UINT* res = (UINT*)MappedResource.pData;
 }
 
 void PhysicalBox::AddObject(Voxel* voxel)

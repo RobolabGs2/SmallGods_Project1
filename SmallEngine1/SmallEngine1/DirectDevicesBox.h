@@ -14,6 +14,7 @@ static int CheckAndThrowIfFailed(HRESULT hr)
 {
 	if (FAILED(hr))
 		throw new _com_error(hr);
+	
 }
 
 class DirectDevicesBox

@@ -8,6 +8,7 @@ class  Voxel;
 #include <DirectXMath.h>
 #include <stdlib.h>
 #include <vector>
+#include <initializer_list>
 
 using namespace DirectX;
 
@@ -56,9 +57,9 @@ public:
 	void Mound(int depth, float factor);
 	//	Обновляет физические параметры (объём и центр масс)
 	void RecalculatePhisicalParams();
-	//	Если объект пересекается с данным, возвращает true. 
-	//	В pPoint заносит координату точки где-то на границе пересечения 
-	bool GetCollisionPoint(Voxel* pTarget, XMVECTOR* pPoint);
+	//	Возвращает объём пересекающейся области
+	//	В pPoint заносит координату точки пересечения 
+	float GetCollisionPoint(Voxel* pTarget, XMVECTOR* pPoint);
 	//	Деструктор
 	virtual ~ Voxel();
 	// Абсолютные координаты

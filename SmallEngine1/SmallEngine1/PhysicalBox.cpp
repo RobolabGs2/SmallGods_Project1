@@ -150,10 +150,10 @@ void PhysicalBox::GenerateVoxels(Direct3Dbox* pDXBox)
 		4,1,5,
 	};
 
-	Voxel* pyramid = new Voxel(NULL, NULL, pDXBox, this, vertices, indices, XMVectorSet(3, 0, 0, 0));
+	Voxel* pyramid = new Voxel(NULL, NULL, pDXBox, this, vertices, indices, XMVectorSet(3, 0, -1, 0));
 	Voxel* TARDIS = (new Voxel(NULL, NULL, pDXBox, this, verticesTARDIS, indicesTARDIS, XMVectorSet(-5, 0, 0, 0)))->SetMovable(false);
 	
-	TARDIS->Mound(2, 0.1);
+	//TARDIS->Mound(2, 0.1);
 	TARDIS->RecalculateImage();
 	TARDIS->RecalculatePhisicalParams();
 	AddObject(pyramid);

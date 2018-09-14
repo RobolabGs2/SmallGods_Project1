@@ -2,6 +2,17 @@
 
 #include "Voxel.h"
 
+//	Возвращает объём области под линией
+float PosVilumeUnderLine(XMFLOAT3 p1, XMFLOAT3 p2);
+//	Возвращает объём области под квадратиком
+float PosVilumeUnderRect(float x1, float x2, float za1, float za2, float zb1, float zb2, XMFLOAT4 ABCD);
+//	Возвращает объём области под квадратиком
+float PosVilumeUnderRect(float x1, float x2, float za1, float za2, float zb1, float zb2, float ha1, float ha2, float hb1, float hb2);
+//	Сортирует массив f по координате x
+inline void mySort(XMFLOAT3* f);
+//	Возвращает true если a находится между x и y
+inline bool aBetweenXY(float a, float x, float y);
+
 Voxel::Voxel()
 {
 	pPrev = this;
@@ -64,17 +75,19 @@ Voxel::Voxel(Voxel * pNext, Voxel* pPrev, Direct3Dbox* pDXbox, PhysicalBox* pPhB
 
 	forceMomentum = XMVectorSet(0, 0, 0, 0);
 	angularMomentum = XMVectorSet(0, 0, 0, 0);
-	Rotation = XMMatrixRotationZ(0.0001);
+	Rotation = XMMatrixRotationZ(0);
 
 	movable = true;
 
 	RecalculatePhisicalParams();
 	RecalculateImage();
 
-	if(volume < 15)
-		lineMomentum = XMVectorSet(-500, 0, 0, 0);
+	if (volume < 15)
+	{
+		lineMomentum = XMVectorSet( -500, 0, 0, 0);
+	}
 	else
-		lineMomentum = XMVectorSet(0, 0, 0, 0);
+		lineMomentum = XMVectorSet( 0, 0, 0, 0);
 }
 
 Voxel* Voxel::AddPrev(Voxel* pVoxel)
@@ -93,9 +106,10 @@ void Voxel::Tick(DWORD dt)
 	{
 		
 		XMVECTOR colPoint;
-		if (GetCollisionPoint(pointer, &colPoint))
+		float col = GetCollisionPoint(pointer, &colPoint);
+		if (abs(col) > 0.00001)
 		{
- 			//XMVECTOR delForce = -XMVector3Normalize(lineMomentum - pointer->lineMomentum) ;
+ 			XMVECTOR delForce = -XMVector3Normalize(lineMomentum - pointer->lineMomentum);
 			//AppForce(colPoint, delForce );
 			//pointer->AppForce(colPoint, -delForce);
 			//location = colPoint;
@@ -270,23 +284,94 @@ void Voxel::RecalculatePhisicalParams()
 
 }
 
-
-
-bool Voxel::GetCollisionPoint(Voxel* pTarget, XMVECTOR* pPoint)
+XMVECTOR GetAbsQVolume(XMFLOAT3& a1, XMFLOAT3& a2, XMFLOAT3* ABC, XMFLOAT4* ABCD)
 {
-#define VOX_SIGN_FUNC(x, z) (Bt * (Av * (x) + Cv * (z) + Dv) - Bv * (At * (x) + Ct * (z) + Dt))
-#define VOX_CHECK_INTERSECTION(signva, signvb, signta, signtb, p1, p2)	\
-	if(((signva < 0) != (signvb < 0)) && (signta < 0) != (signtb < 0))	\
-	{																	\
-		float kzl = (p2.x - p1.x) / (p2.z - p1.z);						\
-		float kzf = (Bv * Ct - Bt * Cv) / (Bt * Av - Bv * At);			\
-		float kf = (Bv * Dt - Bt * Dv) / (Bt * Av - Bv * At);			\
-		float z = (p1.z * kzl + kf - p1.x) / (kzl - kzf);				\
-		float x = z * kzf + kf;											\
-		float y = -((Av * x + Cv * z + Dv) / Bv);						\
-		*pPoint = XMVectorSet(x, y, z, 0);								\
-		return true;													\
+	XMFLOAT4 volume = { 0, 0, 0, 0 };
+
+	a1.z = -(ABC->x * a1.x + ABC->z) / ABC->y;
+	a2.z = -(ABC->x * a2.x + ABC->z) / ABC->y;
+
+	volume.w = (
+		(a1.x - a2.x) * (
+			a2.z * (ABCD->x * (a1.x + 2 * a2.x) + ABCD->z * (a2.z) + 3 * ABCD->w) +
+			a1.z * (ABCD->x * (2 * a1.x + a2.x) + ABCD->z * (a1.z + a2.z) + 3 * ABCD->w)
+			) / ABCD->y) / 6;
+
+	return XMLoadFloat4(&volume);
+}
+
+XMVECTOR GetCollision(XMFLOAT3 cmin, XMFLOAT3 cmax, XMFLOAT3* ABCa, XMFLOAT3* ABCb, XMFLOAT4* ABCDv, XMFLOAT4* ABCDt, XMFLOAT3& ABCvt)
+{
+	XMFLOAT3 pmina = { cmin.x, 0, -(ABCa->x * cmin.x + ABCa->z) / ABCa->y };
+	XMFLOAT3 pminb = { cmin.x, 0, -(ABCb->x * cmin.x + ABCb->z) / ABCb->y };
+	XMFLOAT3 pmaxa = { cmax.x, 0, -(ABCa->x * cmax.x + ABCa->z) / ABCa->y };
+	XMFLOAT3 pmaxb = { cmax.x, 0, -(ABCb->x * cmax.x + ABCb->z) / ABCb->y };
+
+	if (aBetweenXY(0, (pmina.x + pmaxa.x)* ABCvt.x + (pmina.z + pmaxa.z)* ABCvt.y + ABCvt.z, (pminb.x + pmaxb.x)* ABCvt.x + (pminb.z + pmaxb.z)* ABCvt.y + ABCvt.z))
+		return XMVectorSet(0, 0, 0, 0);
+
+	XMVECTOR volume = XMVectorSet(0, 0, 0, 0);
+
+	volume += GetAbsQVolume(cmin, cmax, ABCa, ABCDv);
+	volume -= GetAbsQVolume(cmin, cmax, ABCb, ABCDv);
+	volume -= GetAbsQVolume(cmin, cmax, ABCa, ABCDt);
+	volume += GetAbsQVolume(cmin, cmax, ABCb, ABCDt);
+
+	XMFLOAT4 vol;
+	XMStoreFloat4(&vol, volume);
+
+	if (vol.w < 0)
+		volume *= -1;
+	if((ABCa->y * ABCb->y) < 0)
+		volume *= -1;
+
+	return volume;
+}
+
+XMVECTOR GetCollision2D(XMFLOAT3& cmin, XMFLOAT3& cmax, float* xPoints, unsigned int pointsCount, XMFLOAT3* ABCa, XMFLOAT3* ABCb, XMFLOAT4* ABCDv, XMFLOAT4* ABCDt, XMFLOAT3& ABCvt)
+{
+	if (pointsCount == 0)
+		return GetCollision(cmin, cmax, ABCa, ABCb, ABCDv, ABCDt, ABCvt);
+
+	XMVECTOR volume = XMVectorSet(0, 0, 0, 0);
+
+	if (aBetweenXY(xPoints[0], cmin.x, cmax.x))
+	{
+		XMFLOAT3 betweenPoint = { xPoints[0], 0, 0};
+		volume += GetCollision2D(cmin, betweenPoint, &(xPoints[1]), pointsCount - 1, ABCa, ABCb, ABCDv, ABCDt, ABCvt);
+		volume += GetCollision2D(betweenPoint, cmax, &(xPoints[1]), pointsCount - 1, ABCa, ABCb, ABCDv, ABCDt, ABCvt);
 	}
+	else
+		volume += GetCollision2D(cmin, cmax, &(xPoints[1]), pointsCount - 1, ABCa, ABCb, ABCDv, ABCDt, ABCvt);
+
+	return volume;
+}
+
+XMVECTOR GetCollision3D(XMFLOAT3& a1, XMFLOAT3& a2, XMFLOAT3& b1, XMFLOAT3& b2, XMFLOAT3* ABCa, XMFLOAT3* ABCb, XMFLOAT4* ABCDv, XMFLOAT4* ABCDt)
+{
+	XMFLOAT3 ABCvt = {
+		ABCDv->x * ABCDt->y - ABCDt->x * ABCDv->y,
+		ABCDv->z * ABCDt->y - ABCDt->z * ABCDv->y,
+		ABCDv->w * ABCDt->y - ABCDt->w * ABCDv->y };
+
+	float xOvta = (ABCvt.z * ABCa->y + ABCvt.y * ABCa->z) / (ABCvt.y * ABCa->x + ABCvt.x * ABCa->y);
+	float xOvtb = (ABCvt.z * ABCb->y + ABCvt.y * ABCb->z) / (ABCvt.y * ABCb->x + ABCvt.x * ABCb->y);
+	float xO = (ABCa->z * ABCb->y + ABCa->y * ABCb->z) / (ABCa->y * ABCb->x + ABCa->x * ABCb->y);
+
+	XMFLOAT3 array[] = { a1, a2, b1, b2 };
+	mySort(array);
+	XMFLOAT3 cmin = array[1];
+	XMFLOAT3 cmax = array[2];
+
+	float xPoints[] = { xOvta , xOvtb , xO };
+
+	XMVECTOR volume = GetCollision2D(cmin, cmax, xPoints, 3, ABCa, ABCb, ABCDv, ABCDt, ABCvt);
+
+	return volume;
+}
+
+float Voxel::GetCollisionPoint(Voxel* pTarget, XMVECTOR* pPoint)
+{
 
 	XMMATRIX Worldv = GetMatrixWorld();
 
@@ -299,48 +384,116 @@ bool Voxel::GetCollisionPoint(Voxel* pTarget, XMVECTOR* pPoint)
 	for (int i = 0; i < pTarget->vertices.size(); i++)
 		XMStoreFloat3(&(vt[i]), XMVector3Transform(pTarget->vertices[i], Worldt));
 
+	XMVECTOR volume = XMVectorSet(0, 0, 0, 0);
+
 	for (int iv = 0; iv < indices.size(); iv += 3)
 	{
 
-		XMFLOAT3 pv0 = vv[indices[iv + 0]];
-		XMFLOAT3 pv1 = vv[indices[iv + 1]];
-		XMFLOAT3 pv2 = vv[indices[iv + 2]];
+		XMFLOAT3 pv[3];
+		for (int i = 0; i < 3; i++)
+			pv[i] = vv[indices[iv + i]];
 
-		float Av = (pv1.y - pv0.y) * (pv2.z - pv0.z) - (pv1.z - pv0.z) * (pv2.y - pv0.y);
-		float Bv = (pv1.z - pv0.z) * (pv2.x - pv0.x) - (pv1.x - pv0.x) * (pv2.z - pv0.z);
-		float Cv = (pv1.x - pv0.x) * (pv2.y - pv0.y) - (pv1.y - pv0.y) * (pv2.x - pv0.x);
-		float Dv = - (pv0.x * Av + pv0.y * Bv + pv0.z * Cv);
+		float Av = (pv[1].y - pv[0].y) * (pv[2].z - pv[0].z) - (pv[1].z - pv[0].z) * (pv[2].y - pv[0].y);
+		float Bv = (pv[1].z - pv[0].z) * (pv[2].x - pv[0].x) - (pv[1].x - pv[0].x) * (pv[2].z - pv[0].z);
+		float Cv = (pv[1].x - pv[0].x) * (pv[2].y - pv[0].y) - (pv[1].y - pv[0].y) * (pv[2].x - pv[0].x);
+		float Dv = - (pv[0].x * Av + pv[0].y * Bv + pv[0].z * Cv);
 
+		XMFLOAT4 ABCDv = {Av, Bv, Cv, Dv};
+
+		if (abs(Bv) <= 0.00001)
+			continue;
 		for (int it = 0; it < pTarget->indices.size(); it += 3)
 		{
-			XMFLOAT3 pt0 = vt[pTarget->indices[it + 0]];
-			XMFLOAT3 pt1 = vt[pTarget->indices[it + 1]];
-			XMFLOAT3 pt2 = vt[pTarget->indices[it + 2]];
+			XMFLOAT3 pt[3];
+			for (int i = 0; i < 3; i++)
+				pt[i] = vt[pTarget->indices[it + i]];
 
-			float At = (pt1.y - pt0.y) * (pt2.z - pt0.z) - (pt1.z - pt0.z) * (pt2.y - pt0.y);
-			float Bt = (pt1.z - pt0.z) * (pt2.x - pt0.x) - (pt1.x - pt0.x) * (pt2.z - pt0.z);
-			float Ct = (pt1.x - pt0.x) * (pt2.y - pt0.y) - (pt1.y - pt0.y) * (pt2.x - pt0.x);
-			float Dt = -(pt0.x * At + pt0.y * Bt + pt0.z * Ct);
+			float At = (pt[1].y - pt[0].y) * (pt[2].z - pt[0].z) - (pt[1].z - pt[0].z) * (pt[2].y - pt[0].y);
+			float Bt = (pt[1].z - pt[0].z) * (pt[2].x - pt[0].x) - (pt[1].x - pt[0].x) * (pt[2].z - pt[0].z);
+			float Ct = (pt[1].x - pt[0].x) * (pt[2].y - pt[0].y) - (pt[1].y - pt[0].y) * (pt[2].x - pt[0].x);
+			float Dt = -(pt[0].x * At + pt[0].y * Bt + pt[0].z * Ct);
 
-			float signv0 = VOX_SIGN_FUNC(pv0.x, pv0.z);
-			float signv1 = VOX_SIGN_FUNC(pv1.x, pv1.z);
-			float signv2 = VOX_SIGN_FUNC(pv2.x, pv2.z);
-			
-			float signt0 = VOX_SIGN_FUNC(pt0.x, pt0.z);
-			float signt1 = VOX_SIGN_FUNC(pt1.x, pt1.z);
-			float signt2 = VOX_SIGN_FUNC(pt2.x, pt2.z);
+			XMFLOAT4 ABCDt = { At, Bt, Ct, Dt };
 
-			VOX_CHECK_INTERSECTION(signv0, signv1, signt0, signt1, pv0, pv1);
-			VOX_CHECK_INTERSECTION(signv0, signv1, signt0, signt2, pv0, pv1);
-			VOX_CHECK_INTERSECTION(signv0, signv2, signt0, signt1, pv0, pv2);
-			VOX_CHECK_INTERSECTION(signv0, signv2, signt0, signt2, pv0, pv2);
+			if (abs(Bt) <= 0.00001)
+				continue;
 
+			for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
+				{
+					int ii = (i + 1) % 3;
+					int jj = (j + 1) % 3;
+					XMFLOAT3 a1 = pt[i];
+					XMFLOAT3 a2 = pt[ii];
+					XMFLOAT3 b1 = pv[j];
+					XMFLOAT3 b2 = pv[jj];
+
+					float dx = abs(abs(a1.x - b1.x) + abs(a2.x - b2.x) - abs(a1.x - b2.x) - abs(a2.x - b1.x));
+
+					if (dx <= 0.00001)
+						continue;
+
+					float Aa = a2.z - a1.z;
+					float Ba = a1.x - a2.x;
+					float Ca = -Aa * a1.x - Ba * a1.z;
+
+					float Ab = b2.z - b1.z;
+					float Bb = b1.x - b2.x;
+					float Cb = -Ab * b1.x - Bb * b1.z;
+					
+					volume += GetCollision3D(a1, a2, b1, b2, &XMFLOAT3(Aa, Ba, Ca), &XMFLOAT3(Ab, Bb, Cb), &ABCDv, &ABCDt);
+				}
 		}
 	}
 
-	return false;
-#undef VOX_SIGN_FUNC
-#undef VOX_CHECK_INTERSECTION
+
+	XMFLOAT4 collision;
+	XMStoreFloat4(&collision, volume);
+	float vol = collision.w;
+
+	pPoint = &((volume *  XMVectorSet(1, 1, 1, 0)) / vol);
+	return collision.w;
+}
+
+inline void swap(XMFLOAT3* a, XMFLOAT3* b)
+{
+	XMFLOAT3 c = *a;
+	*a = *b;
+	*b = c;
+}
+
+inline bool aBetweenXY(float a, float x, float y)
+{
+	return ((a >= x) && (a <= y)) || ((a <= x) && (a >= y));
+}
+
+inline void mySort(XMFLOAT3* f)
+{
+	for (int i = 0; i < 4; i++)
+		for (int j = i + 1; j < 4; j++)
+			if (f[i].x > f[j].x)
+				swap(&f[i], &f[j]);
+}
+
+float PosVilumeUnderLine(XMFLOAT3 p1, XMFLOAT3 p2)
+{
+	float res = abs(p2.x - p1.x) * ((p2.y * p1.z + p1.y * p2.z) / 2 + p1.y * p1.z + p2.y * p2.z) / 3;
+	return res;
+}
+
+float PosVilumeUnderRect(float x1, float x2, float za1, float za2, float zb1, float zb2, XMFLOAT4 ABCD)
+{
+	return abs(x2 - x1) * (
+		(zb2 - za2) * (ABCD.x * (2 * x2 + x1) + ABCD.z * (za1 + za2 + zb2) + 3 * ABCD.w) +
+		(zb1 - za1) * (ABCD.x * (2 * x1 + x2) + ABCD.z * (za1 + zb1 + zb2) + 3 * ABCD.w)) / 
+		(6 * ABCD.y);
+}
+
+float PosVilumeUnderRect(float x1, float x2, float za1, float za2, float zb1, float zb2, float ha1, float ha2, float hb1, float hb2)
+{
+	return abs(x2 - x1) * (
+		(zb2 - za2) * (ha1 + ha2 + hb2) +
+		(zb1 - za1) * (ha1 + hb1 + hb2) ) / 6;
 }
 
 
@@ -367,7 +520,7 @@ XMMATRIX Voxel::GetMatrixWorld()
 
 XMMATRIX Voxel::GetRotation()
 {
-	return Rotation;;
+	return Rotation;
 }
 
 
